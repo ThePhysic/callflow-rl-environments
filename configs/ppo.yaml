@@ -1,0 +1,20 @@
+# Freeze this plan before running experiments. Test suite is never used for
+# gradient updates, action selection, early stopping or checkpoint selection.
+training_seeds: [11, 29, 47]
+total_steps: 32768
+checkpoint_steps: [0, 8192, 16384, 32768]
+rollout_steps: 512
+update_epochs: 6
+minibatch_size: 128
+hidden_size: 64
+learning_rate: 0.0005
+gamma: 0.99
+gae_lambda: 0.95
+clip_ratio: 0.2
+value_coefficient: 0.5
+entropy_coefficient: 0.015
+max_grad_norm: 0.5
+reward_mode: shaped
+torch_threads: 1
+evaluation_split: dev
+evaluation_seed: 2026
