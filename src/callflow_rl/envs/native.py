@@ -13,7 +13,7 @@ import re
 from copy import deepcopy
 from typing import Any
 
-from callflow_rl.contracts import ScenarioSpec, validate_action
+from callflow_rl.contracts import ScenarioSpec, validate_action, validate_fault
 from callflow_rl.core import fingerprint, rng_seed, tuple_tree
 from callflow_rl.simulators.tools import TOOL_SCHEMAS, WRITE_TOOLS, SchedulingService, validate_tool
 from callflow_rl.simulators.user import UserSimulator
@@ -25,6 +25,7 @@ class CallFlowEnv:
         if reward_mode not in {"sparse", "shaped"}:
             raise ValueError("reward_mode must be sparse or shaped")
         self.scenario = deepcopy(scenario)
+        self._automatic_scenario = scenario is None
         self.reward_mode = reward_mode
         self.state: dict[str, Any] = {}
         self._rng = random.Random(0)
@@ -33,19 +34,26 @@ class CallFlowEnv:
     def reset(
         self, seed: int | None = None, options: dict[str, Any] | None = None
     ) -> tuple[dict[str, Any], dict[str, Any]]:
+        if seed is not None and (type(seed) is not int or seed < 0):
+            raise ValueError("seed must be a nonnegative integer")
+        if options is not None and not isinstance(options, dict):
+            raise ValueError("options must be an object")
+        scenario = self.scenario
+        automatic = self._automatic_scenario
         if options and "scenario" in options:
             item = options["scenario"]
-            self.scenario = (
-                ScenarioSpec.from_dict(item) if isinstance(item, dict) else deepcopy(item)
-            )
-        if self.scenario is None:
+            if not isinstance(item, (dict, ScenarioSpec)):
+                raise ValueError("scenario must be a ScenarioSpec or object")
+            scenario = ScenarioSpec.from_dict(item) if isinstance(item, dict) else deepcopy(item)
+            automatic = False
+        if automatic:
             from callflow_rl.scenarios import generate
 
-            self.scenario = generate("book_direct", seed or 0)
-        assert self.scenario is not None
-        self._seed = self.scenario.seed if seed is None else seed
-        self._rng = random.Random(rng_seed(self._seed, "user"))
-        world = deepcopy(self.scenario.initial_world)
+            scenario = generate("book_direct", self._seed if seed is None else seed)
+        assert scenario is not None
+        scenario.__post_init__()
+        episode_seed = scenario.seed if seed is None else seed
+        world = deepcopy(scenario.initial_world)
         world.setdefault("customers", {})
         world.setdefault("slots", [])
         world.setdefault("bookings", {})
@@ -57,7 +65,7 @@ class CallFlowEnv:
         for booking in world["bookings"].values():
             booking.setdefault("version", 0)
             booking.setdefault("status", "active")
-        config = deepcopy(self.scenario.user)
+        config = deepcopy(scenario.user)
         truth = deepcopy(config.get("facts", {}))
         truth.setdefault("task", "book")
         known = config.get("initial_known", ["task"])
@@ -70,9 +78,22 @@ class CallFlowEnv:
             ),
             None,
         )
+        if "principal_customer_id" in config:
+            principal = config["principal_customer_id"]
+            if not isinstance(principal, str) or principal not in world["customers"]:
+                raise ValueError("user.principal_customer_id must reference a synthetic customer")
+        if principal is None and any(
+            event.get("type") == "correction" and event.get("field") == "account_code"
+            for event in scenario.events
+        ):
+            raise ValueError("identity-correction scenarios need user.principal_customer_id")
         next_booking = 1
         while f"B{next_booking:06d}" in world["bookings"]:
             next_booking += 1
+        self.scenario = scenario
+        self._automatic_scenario = automatic
+        self._seed = episode_seed
+        self._rng = random.Random(rng_seed(self._seed, "user"))
         self.state = {
             "world": world,
             "user_truth": truth,
@@ -252,6 +273,7 @@ class CallFlowEnv:
                     "state": self.state,
                     "seed": self._seed,
                     "reward_mode": self.reward_mode,
+                    "automatic_scenario": self._automatic_scenario,
                     "rng_state": self._rng.getstate(),
                 }
             )
@@ -265,6 +287,7 @@ class CallFlowEnv:
         self.state = snap["state"]
         self._seed = snap["seed"]
         self.reward_mode = snap["reward_mode"]
+        self._automatic_scenario = snap.get("automatic_scenario", False)
         self._rng = random.Random()
         self._rng.setstate(tuple_tree(snap["rng_state"]))
 
@@ -272,13 +295,11 @@ class CallFlowEnv:
         return fingerprint(self.snapshot())
 
     def inject_fault(self, fault: dict[str, Any]) -> None:
-        if (
-            not isinstance(fault, dict)
-            or fault.get("kind")
-            not in {"timeout_before", "timeout_after", "conflict", "stale", "reject", "latency"}
-            or fault.get("tool") not in TOOL_SCHEMAS
-        ):
-            raise ValueError("invalid fault schedule entry")
+        if not self.state:
+            raise RuntimeError("reset must be called first")
+        error = validate_fault(fault)
+        if error:
+            raise ValueError(error)
         self.state["faults"].append(deepcopy(fault))
 
     def _invalid(self, error: str) -> None:
@@ -420,7 +441,7 @@ class CallFlowEnv:
         # Explicit report fields are preferred. Unqualified natural-language success
         # assertions are also audited, so omitting the fields cannot bypass penalties.
         claimed = status in {"active", "cancelled"}
-        claim_word = None
+        asserted_statuses: set[str] = {str(status)} if claimed else set()
         # Negation belongs to its own clause. A courtesy "No problem," or a
         # separate refusal cannot conceal a later assertion that a booking exists.
         for clause in re.split(
@@ -428,39 +449,56 @@ class CallFlowEnv:
         ):
             if re.search(r"\b(not|cannot|can't|unable|never|no)\b", clause, re.I):
                 continue
-            match = re.search(r"\b(booked|confirmed|cancelled|canceled|reserved)\b", clause, re.I)
-            if match:
-                claim_word = match.group(1).lower()
-                break
-        if claimed or claim_word is not None:
+            for match in re.finditer(
+                r"\b(booked|confirmed|cancelled|canceled|reserved|active)\b", clause, re.I
+            ):
+                word = match.group(1).lower()
+                if word in {"cancelled", "canceled"}:
+                    asserted_statuses.add("cancelled")
+                elif word == "confirmed":
+                    # A typed cancellation confirmation is not a booking claim.
+                    asserted_statuses.add(
+                        "cancelled"
+                        if re.search(r"\bcancellation\b", clause, re.I)
+                        else str(status)
+                        if claimed
+                        else "active"
+                    )
+                else:
+                    asserted_statuses.add("active")
+        if asserted_statuses:
             booking_id = action.get("booking_id")
-            inferred_status = status or (
-                "cancelled" if claim_word in {"cancelled", "canceled"} else "active"
-            )
             actual = s["world"]["bookings"].get(booking_id)
-            observed = next(
-                (
-                    b
-                    for b in s["bookings"]
-                    if b["id"] == booking_id and b["status"] == inferred_status
-                ),
-                None,
-            )
-            s["audit"].append(
-                {
-                    "kind": "claim",
-                    "booking_id": booking_id,
-                    "status": inferred_status,
-                    "actual_booking": deepcopy(actual),
-                    "observed_booking": deepcopy(observed),
-                    "turn": s["turn"],
-                    "time": s["clock"],
-                }
-            )
+            matching_observations: list[dict[str, Any] | None] = []
+            for inferred_status in sorted(asserted_statuses):
+                observed = next(
+                    (
+                        b
+                        for b in s["bookings"]
+                        if b["id"] == booking_id and b["status"] == inferred_status
+                    ),
+                    None,
+                )
+                matching_observations.append(observed)
+                s["audit"].append(
+                    {
+                        "kind": "claim",
+                        "booking_id": booking_id,
+                        "status": inferred_status,
+                        "actual_booking": deepcopy(actual),
+                        "observed_booking": deepcopy(observed),
+                        "turn": s["turn"],
+                        "time": s["clock"],
+                    }
+                )
+            # Public evidence must support every assertion. The verifier alone
+            # compares these reports with private database truth.
             s["reported"] = bool(
-                observed
-                and s["result_booking"] == observed
-                and observed["status"] == inferred_status
+                s["result_booking"]
+                and all(
+                    observed is not None and observed == s["result_booking"]
+                    for observed in matching_observations
+                )
             )
         if re.search(r"\b(cannot|can't|unable|declined|no availability|refuse)\b", text, re.I):
             s["audit"].append(
@@ -540,10 +578,16 @@ class CallFlowEnv:
         if self.verdict()["safety_violation"]:
             s["terminated"] = True
             s["termination_reason"] = "safety_violation"
+        elif s["clock"] > self.scenario.max_time:
+            # END/HANDOFF consume time too; in-flight writes remain audited.
+            # Completion exactly at the deadline is allowed, overshooting is not.
+            s["terminated"] = False
+            s["truncated"] = True
+            s["termination_reason"] = "time_limit"
         elif s["user_ended"] and not s["terminated"]:
             s["terminated"] = True
             s["termination_reason"] = "user_ended"
-        if not s["terminated"]:
+        if not s["terminated"] and not s["truncated"]:
             limit = (
                 "turn_limit"
                 if s["turn"] >= self.scenario.max_turns

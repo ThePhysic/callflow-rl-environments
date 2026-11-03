@@ -9,6 +9,7 @@ import os
 import platform
 import time
 from concurrent.futures import ProcessPoolExecutor, as_completed
+from concurrent.futures.process import BrokenProcessPool
 from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
 from importlib.metadata import version
@@ -73,6 +74,7 @@ def run_episode(
     policy_version: str | None = None,
     manifest: str | None = None,
 ) -> EpisodeTrace:
+    """Record a v2 trace: dispatched tool calls and attempted decisions are separate."""
     start = time.perf_counter()
     env = CallFlowEnv(scenario=scenario, reward_mode=reward_mode)
     obs, _ = env.reset(seed=seed)
@@ -102,7 +104,7 @@ def run_episode(
         steps.append(record)
     return EpisodeTrace(
         metadata={
-            "trace_version": "1",
+            "trace_version": "2",
             "environment_version": __version__,
             "build_fingerprint": build_fingerprint(),
             "scenario": scenario.to_dict(),
@@ -127,7 +129,8 @@ def run_episode(
         resources={
             "wall_seconds": time.perf_counter() - start,
             "steps": len(steps),
-            "tool_calls": sum(
+            "tool_calls": int(env.verdict()["tool_call_count"]),
+            "tool_decisions": sum(
                 isinstance(s["action"], dict) and s["action"].get("type") == "CALL_TOOL"
                 for s in steps
             ),
@@ -177,7 +180,12 @@ def run_batch(
     manifest: str | None = None,
     infrastructure_retries: int = 1,
 ) -> dict[str, Any]:
-    """Spawned processes own separate envs/RNGs; retries are evaluator metadata."""
+    """Run isolated episodes with a bounded retry budget for each unfinished task.
+
+    A dead worker requires a new executor. Completed results survive that restart;
+    interrupted tasks consume their own retry budgets, including queued tasks.
+    Infrastructure retries count task resubmissions, separately from pool restarts.
+    """
     if not scenarios or workers < 1 or infrastructure_retries < 0:
         raise ValueError("Require scenarios, positive workers and nonnegative retries")
     if policy not in {"heuristic", "random", "ppo"}:
@@ -198,20 +206,48 @@ def run_batch(
     ]
     results: list[dict[str, Any] | None] = [None] * len(tasks)
     retries = 0
+    pool_restarts = 0
     started = time.perf_counter()
-    with ProcessPoolExecutor(max_workers=workers) as pool:
-        futures = {pool.submit(_worker, task): i for i, task in enumerate(tasks)}
-        while futures:
-            for future in as_completed(list(futures)):
-                i = futures.pop(future)
-                try:
-                    results[i] = future.result()
-                except Exception:
-                    if tasks[i]["attempt"] >= infrastructure_retries:
-                        raise
-                    tasks[i]["attempt"] += 1
-                    retries += 1
-                    futures[pool.submit(_worker, tasks[i])] = i
+    pending = list(range(len(tasks)))
+    while pending:
+        pool = ProcessPoolExecutor(max_workers=workers)
+        futures = {}
+        broken: BrokenProcessPool | None = None
+        try:
+            try:
+                for i in pending:
+                    futures[pool.submit(_worker, copy.deepcopy(tasks[i]))] = i
+                while futures:
+                    for future in as_completed(list(futures)):
+                        i = futures.pop(future)
+                        try:
+                            results[i] = future.result()
+                        except BrokenProcessPool:
+                            raise
+                        except Exception:
+                            if tasks[i]["attempt"] >= infrastructure_retries:
+                                raise
+                            tasks[i]["attempt"] += 1
+                            retries += 1
+                            futures[pool.submit(_worker, copy.deepcopy(tasks[i]))] = i
+            except BrokenProcessPool as error:
+                broken = error
+        finally:
+            pool.shutdown(wait=True, cancel_futures=broken is not None)
+        if broken is None:
+            break
+        # A crash can coincide with successful results not yet consumed by
+        # as_completed. Keep those instead of rerunning their episodes.
+        for future, i in futures.items():
+            if future.done() and not future.cancelled() and future.exception() is None:
+                results[i] = future.result()
+        pending = [i for i, result in enumerate(results) if result is None]
+        if any(tasks[i]["attempt"] >= infrastructure_retries for i in pending):
+            raise broken
+        for i in pending:
+            tasks[i]["attempt"] += 1
+            retries += 1
+        pool_restarts += 1
     elapsed = time.perf_counter() - started
     complete = [r for r in results if r is not None]
     latencies = [r["resources"]["wall_seconds"] for r in complete]
@@ -226,6 +262,7 @@ def run_batch(
             "p50_episode_seconds": float(np.percentile(latencies, 50)),
             "p95_episode_seconds": float(np.percentile(latencies, 95)),
             "infrastructure_retries": retries,
+            "worker_pool_restarts": pool_restarts,
             "task_success_count": sum(bool(r["verdict"].get("task_success")) for r in complete),
             "appropriate_resolution_count": sum(
                 bool(

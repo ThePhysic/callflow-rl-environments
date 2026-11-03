@@ -152,6 +152,9 @@ class UserSimulator:
             self.state["declined_slots"] = []
             self.state["user_declined"] = False
             self.state["pending_write"] = None
+            self.state["result_booking"] = None
+            self.state["reported"] = False
+            self.state["refusal_sent"] = False
             if field == "account_code":
                 self.state["authenticated_customer_id"] = None
                 self.state["customer"] = None

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import copy
 import json
+import math
 from pathlib import Path
 from typing import Any
 
@@ -44,7 +45,7 @@ def load_trace(path: str | Path) -> EpisodeTrace:
     if rows[-1].get("record") != "checksum":
         raise ValueError("Incomplete trace: missing checksum")
     data = {k: v for k, v in rows[0].items() if k != "record"}
-    if data.get("metadata", {}).get("trace_version") != "1":
+    if data.get("metadata", {}).get("trace_version") not in {"1", "2"}:
         raise ValueError("Unsupported trace version")
     if any(r.get("record") != "step" for r in rows[1:-1]):
         raise ValueError("Unexpected trace record")
@@ -55,6 +56,9 @@ def load_trace(path: str | Path) -> EpisodeTrace:
 
 
 def replay(trace: EpisodeTrace, allow_build_mismatch: bool = False) -> dict[str, Any]:
+    trace_version = trace.metadata.get("trace_version")
+    if trace_version not in {"1", "2"}:
+        raise ValueError("Unsupported trace version")
     if not allow_build_mismatch and trace.metadata["build_fingerprint"] != build_fingerprint():
         raise ValueError("Build differs from recorded source; explicitly allow to investigate")
     spec = ScenarioSpec.from_dict(trace.metadata["scenario"])
@@ -64,10 +68,24 @@ def replay(trace: EpisodeTrace, allow_build_mismatch: bool = False) -> dict[str,
     obs, _ = env.reset(seed=trace.metadata["seed"])
     if obs != trace.initial_observation or env.state_hash() != trace.initial_state_hash:
         raise AssertionError("Initial observation/state does not match")
+    if canonical(env.snapshot()) != canonical(trace.initial_snapshot):
+        raise AssertionError("Initial snapshot mismatch")
+    if trace.metadata.get("initial_state_fingerprint") != env.state_hash():
+        raise AssertionError("Initial metadata fingerprint mismatch")
+    total_reward = 0.0
+    tool_decisions = 0
     for i, expected in enumerate(trace.steps):
         if expected["index"] != i or env.state_hash() != expected["pre_state_hash"]:
             raise AssertionError(f"Pre-action state mismatch at step {i}")
+        if "pre_snapshot" in expected and canonical(env.snapshot()) != canonical(
+            expected["pre_snapshot"]
+        ):
+            raise AssertionError(f"Pre-action snapshot mismatch at step {i}")
         obs, reward, terminated, truncated, info = env.step(copy.deepcopy(expected["action"]))
+        total_reward += float(reward)
+        tool_decisions += int(
+            isinstance(expected["action"], dict) and expected["action"].get("type") == "CALL_TOOL"
+        )
         actual = {
             "observation": obs,
             "reward": float(reward),
@@ -83,6 +101,28 @@ def replay(trace: EpisodeTrace, allow_build_mismatch: bool = False) -> dict[str,
         raise AssertionError("Final verifier outcome mismatch")
     if env.state_hash() != trace.resources["final_state_hash"]:
         raise AssertionError("Final state mismatch")
+    expected_resources = {
+        "steps": len(trace.steps),
+        "total_reward": total_reward,
+        "final_snapshot_hash": digest(env.snapshot()),
+        # Version 1 counted attempted tool decisions under the tool_calls name.
+        "tool_calls": tool_decisions
+        if trace_version == "1"
+        else int(env.verdict()["tool_call_count"]),
+    }
+    if trace_version == "2":
+        expected_resources["tool_decisions"] = tool_decisions
+    for key, value in expected_resources.items():
+        if canonical(trace.resources.get(key)) != canonical(value):
+            raise AssertionError(f"Resource mismatch: {key}")
+    wall_seconds = trace.resources.get("wall_seconds")
+    if (
+        not isinstance(wall_seconds, (int, float))
+        or isinstance(wall_seconds, bool)
+        or (isinstance(wall_seconds, float) and not math.isfinite(wall_seconds))
+        or wall_seconds < 0
+    ):
+        raise AssertionError("Resource wall_seconds must be finite and nonnegative")
     return {"matched": True, "steps": len(trace.steps), "verdict": env.verdict()}
 
 

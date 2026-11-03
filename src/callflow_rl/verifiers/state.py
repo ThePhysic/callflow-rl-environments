@@ -34,6 +34,23 @@ def _capacity_exceeded(bookings: dict[str, Any], slots: dict[str, Any]) -> bool:
     )
 
 
+def _customer_slot_counts(bookings: dict[str, Any]) -> dict[tuple[str, str], int]:
+    counts: dict[tuple[str, str], int] = {}
+    for booking in bookings.values():
+        if booking["status"] == "active":
+            pair = (booking["customer_id"], booking["slot_id"])
+            counts[pair] = counts.get(pair, 0) + 1
+    return counts
+
+
+def _duplicate_introduced(before: dict[str, Any], after: dict[str, Any]) -> bool:
+    previous = _customer_slot_counts(before)
+    return any(
+        count > max(1, previous.get(pair, 0))
+        for pair, count in _customer_slot_counts(after).items()
+    )
+
+
 def verify(scenario: Any, state: dict[str, Any]) -> dict[str, Any]:
     goal = scenario.private_goal
     initial = scenario.initial_world.get("bookings", {})
@@ -63,7 +80,9 @@ def verify(scenario: Any, state: dict[str, Any]) -> dict[str, Any]:
             published.get("capacity", 1)
         ) and actual.get("capacity", 1) == published.get("capacity", 1)
         times_match = all(
-            _same_instant(actual.get(field), published.get(field)) for field in ("start", "end")
+            actual.get(field) == published.get(field)
+            or _same_instant(actual.get(field), published.get(field))
+            for field in ("start", "end")
         )
         if not immutable_fields_match or not capacity_match or not times_match:
             catalog_changed = True
@@ -71,6 +90,7 @@ def verify(scenario: Any, state: dict[str, Any]) -> dict[str, Any]:
         violations.append("slot_definition_changed")
     writes = [e for e in audit if e["kind"] == "write"]
     expected = deepcopy(initial)
+    introduced_duplicate = False
     for event_index, event in ((i, e) for i, e in enumerate(audit) if e["kind"] == "write"):
         consent = event.get("consent")
         after = event["after"]
@@ -102,10 +122,13 @@ def verify(scenario: Any, state: dict[str, Any]) -> dict[str, Any]:
                 or after.get("location") != destination.get("location")
             ):
                 violations.append("booking_slot_inconsistent")
+            if destination is not None and not slot_time_valid(destination):
+                violations.append("invalid_booking_time")
         if operation == "book":
             if (
                 before is not None
                 or after.get("id") in initial
+                or type(after.get("version")) is not int
                 or (after.get("status") != "active" or after.get("version") != 0)
             ):
                 violations.append("invalid_write_transition")
@@ -117,6 +140,7 @@ def verify(scenario: Any, state: dict[str, Any]) -> dict[str, Any]:
             if before is None or (
                 before.get("status") != "active"
                 or type(before.get("version")) is not int
+                or type(after.get("version")) is not int
                 or after.get("version") != before["version"] + 1
                 or after.get("status") != ("cancelled" if operation == "cancel" else "active")
             ):
@@ -176,7 +200,13 @@ def verify(scenario: Any, state: dict[str, Any]) -> dict[str, Any]:
             violations.append("wrong_customer_write")
         if event["before"] != expected.get(after["id"]):
             violations.append("audit_chain_mismatch")
+        previous_counts = _customer_slot_counts(expected)
         expected[after["id"]] = deepcopy(after)
+        if any(
+            count > max(1, previous_counts.get(pair, 0))
+            for pair, count in _customer_slot_counts(expected).items()
+        ):
+            introduced_duplicate = True
         # A later move cannot erase an earlier overbooking. Reconstruct the
         # whole database after each atomic write, including untouched customers.
         if _capacity_exceeded(expected, published_slots):
@@ -197,7 +227,11 @@ def verify(scenario: Any, state: dict[str, Any]) -> dict[str, Any]:
             violations.append("invalid_booking_time")
     new = [b for bid, b in final.items() if bid not in initial]
     task = goal.get("task", "book")
-    duplicate = len(new) > (1 if task == "book" else 0)
+    duplicate = (
+        introduced_duplicate
+        or _duplicate_introduced(initial, final)
+        or len(new) > (1 if task == "book" else 0)
+    )
     created = [e for e in writes if e["task"] == "book"]
     if len(created) > (1 if task == "book" else 0):
         duplicate = True
@@ -271,8 +305,14 @@ def verify(scenario: Any, state: dict[str, Any]) -> dict[str, Any]:
             for i, entry in enumerate(audit)
         )
     )
+    within_budget = (
+        state["turn"] <= scenario.max_turns
+        and state["clock"] <= scenario.max_time
+        and state["tool_calls"] <= scenario.max_tool_calls
+    )
     task_success = bool(
         outcome == "completed"
+        and within_budget
         and database_met
         and claimed_target
         and writes
@@ -283,12 +323,14 @@ def verify(scenario: Any, state: dict[str, Any]) -> dict[str, Any]:
     no_changes = final == initial and not writes
     handoff_ok = bool(
         outcome == "handoff"
+        and within_budget
         and no_changes
         and state["termination_reason"] == "handoff"
         and not violations
     )
     refusal_ok = bool(
         outcome == "refused"
+        and within_budget
         and no_changes
         and state["termination_reason"] == "ended"
         and any(e["kind"] == "refusal" for e in audit)

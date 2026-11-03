@@ -190,16 +190,21 @@ class SchedulingService:
                 slot["id"], args.get("booking_id")
             ) >= slot.get("capacity", 1):
                 return {"ok": False, "error": "slot_unavailable"}
-            if name == "create_booking" and any(
+            if any(
                 b["customer_id"] == args["customer_id"]
                 and b["status"] == "active"
                 and b["slot_id"] == slot["id"]
+                and b["id"] != args.get("booking_id")
                 for b in self.world["bookings"].values()
             ):
                 return {"ok": False, "error": "duplicate_booking"}
         before = deepcopy(old)
         if name == "create_booking":
             assert slot is not None
+            # Imported reservations may use sparse IDs from this namespace.
+            # Check every allocation, rather than only the initial counter.
+            while f"B{self.state['next_booking']:06d}" in self.world["bookings"]:
+                self.state["next_booking"] += 1
             booking_id = f"B{self.state['next_booking']:06d}"
             self.state["next_booking"] += 1
             booking = {
