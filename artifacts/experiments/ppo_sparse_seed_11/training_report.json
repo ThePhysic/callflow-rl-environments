@@ -1,0 +1,884 @@
+{
+  "seed": 11,
+  "variant": "sparse",
+  "config": {
+    "training_seeds": [
+      11,
+      29,
+      47
+    ],
+    "total_steps": 32768,
+    "checkpoint_steps": [
+      0,
+      8192,
+      16384,
+      32768
+    ],
+    "rollout_steps": 512,
+    "update_epochs": 6,
+    "minibatch_size": 128,
+    "hidden_size": 64,
+    "learning_rate": 0.0005,
+    "gamma": 0.99,
+    "gae_lambda": 0.95,
+    "clip_ratio": 0.2,
+    "value_coefficient": 0.5,
+    "entropy_coefficient": 0.015,
+    "max_grad_norm": 0.5,
+    "reward_mode": "shaped",
+    "torch_threads": 1,
+    "evaluation_split": "dev",
+    "evaluation_seed": 2026,
+    "public_action_mask": "public-workflow-v1"
+  },
+  "training_archetypes": [
+    "book_direct",
+    "book_identity_missing",
+    "book_service_missing",
+    "book_location_missing",
+    "book_window_missing",
+    "book_all_missing",
+    "book_flexible",
+    "book_timeout_before",
+    "book_timeout_after",
+    "book_conflict",
+    "book_no_availability",
+    "book_decline",
+    "book_interruption",
+    "book_slow_tools",
+    "reschedule_direct",
+    "reschedule_timeout_after",
+    "reschedule_conflict",
+    "cancel_direct",
+    "cancel_timeout_before",
+    "policy_handoff"
+  ],
+  "training_manifest_hash": "da042501a22780f6799332e504a844a4552e3f29dfc6ac6388d36fe62bc17c67",
+  "development_manifest_hash": "10bee7ce5d4d951737e8a1cd7d07e9970a235c98adb5f25332a9969fa51b04d2",
+  "test_used_for_training_or_selection": false,
+  "checkpoint_selection": "fixed_final_budget",
+  "algorithm": "clipped_ppo_gae",
+  "torch_version": "2.15.0+cpu",
+  "numpy_version": "2.5.4",
+  "device": "cpu",
+  "public_action_mask": "public-workflow-v1",
+  "deterministic_algorithms": true,
+  "completed_episodes": 1090,
+  "environment_interactions": 32768,
+  "training_reward_sum": 134.10000000069894,
+  "elapsed_seconds": 114.53637029998936,
+  "learning_curve": [
+    {
+      "interactions": 0,
+      "metrics": {
+        "task_success": {
+          "count": 0,
+          "denominator": 80,
+          "rate": 0.0,
+          "ci95_wilson": [
+            0.0,
+            0.0458181295355271
+          ]
+        },
+        "policy_compliant_success": {
+          "count": 0,
+          "denominator": 80,
+          "rate": 0.0,
+          "ci95_wilson": [
+            0.0,
+            0.0458181295355271
+          ]
+        },
+        "false_success_claim": {
+          "count": 0,
+          "denominator": 80,
+          "rate": 0.0,
+          "ci95_wilson": [
+            0.0,
+            0.0458181295355271
+          ]
+        },
+        "safety_violation": {
+          "count": 0,
+          "denominator": 80,
+          "rate": 0.0,
+          "ci95_wilson": [
+            0.0,
+            0.0458181295355271
+          ]
+        },
+        "unsafe_side_effect": {
+          "count": 0,
+          "denominator": 80,
+          "rate": 0.0,
+          "ci95_wilson": [
+            0.0,
+            0.0458181295355271
+          ]
+        },
+        "duplicate_side_effect": {
+          "count": 0,
+          "denominator": 80,
+          "rate": 0.0,
+          "ci95_wilson": [
+            0.0,
+            0.0458181295355271
+          ]
+        },
+        "truncated": {
+          "count": 80,
+          "denominator": 80,
+          "rate": 1.0,
+          "ci95_wilson": [
+            0.9541818704644728,
+            0.9999999999999999
+          ]
+        },
+        "justified_handoff": {
+          "count": 0,
+          "denominator": 80,
+          "rate": 0.0,
+          "ci95_wilson": [
+            0.0,
+            0.0458181295355271
+          ]
+        },
+        "justified_refusal": {
+          "count": 0,
+          "denominator": 80,
+          "rate": 0.0,
+          "ci95_wilson": [
+            0.0,
+            0.0458181295355271
+          ]
+        },
+        "appropriate_resolution": {
+          "count": 0,
+          "denominator": 80,
+          "rate": 0.0,
+          "ci95_wilson": [
+            0.0,
+            0.0458181295355271
+          ]
+        },
+        "postcommit_timeout_recovery": {
+          "count": 0,
+          "denominator": 0,
+          "rate": null,
+          "ci95_wilson": null
+        },
+        "task_success_eligible": {
+          "count": 0,
+          "denominator": 60,
+          "rate": 0.0,
+          "ci95_wilson": [
+            0.0,
+            0.06017185214208986
+          ]
+        },
+        "postcommit_timeout_scheduled_count": 20,
+        "postcommit_timeout_exposed_count": 0,
+        "simulator_inconsistency": {
+          "count": 0,
+          "checked_turn_denominator": 3280,
+          "rate": 0.0,
+          "episode_rate": {
+            "count": 0,
+            "denominator": 80,
+            "rate": 0.0,
+            "ci95_wilson": [
+              0.0,
+              0.0458181295355271
+            ]
+          }
+        },
+        "episodes": 80,
+        "mean_steps": 40.0,
+        "mean_tool_calls": 5.25,
+        "mean_invalid_actions": 0.0,
+        "mean_reward": -10.780000000000001,
+        "episode_latency_p50_seconds": 0.0616625499969814,
+        "episode_latency_p95_seconds": 0.07697476500616177,
+        "elapsed_seconds": 5.1480214999755844,
+        "episodes_per_second": 15.53995063936299,
+        "failure_taxonomy": {
+          "turn_limit": 80
+        }
+      }
+    },
+    {
+      "interactions": 8192,
+      "metrics": {
+        "task_success": {
+          "count": 0,
+          "denominator": 80,
+          "rate": 0.0,
+          "ci95_wilson": [
+            0.0,
+            0.0458181295355271
+          ]
+        },
+        "policy_compliant_success": {
+          "count": 0,
+          "denominator": 80,
+          "rate": 0.0,
+          "ci95_wilson": [
+            0.0,
+            0.0458181295355271
+          ]
+        },
+        "false_success_claim": {
+          "count": 0,
+          "denominator": 80,
+          "rate": 0.0,
+          "ci95_wilson": [
+            0.0,
+            0.0458181295355271
+          ]
+        },
+        "safety_violation": {
+          "count": 0,
+          "denominator": 80,
+          "rate": 0.0,
+          "ci95_wilson": [
+            0.0,
+            0.0458181295355271
+          ]
+        },
+        "unsafe_side_effect": {
+          "count": 0,
+          "denominator": 80,
+          "rate": 0.0,
+          "ci95_wilson": [
+            0.0,
+            0.0458181295355271
+          ]
+        },
+        "duplicate_side_effect": {
+          "count": 0,
+          "denominator": 80,
+          "rate": 0.0,
+          "ci95_wilson": [
+            0.0,
+            0.0458181295355271
+          ]
+        },
+        "truncated": {
+          "count": 80,
+          "denominator": 80,
+          "rate": 1.0,
+          "ci95_wilson": [
+            0.9541818704644728,
+            0.9999999999999999
+          ]
+        },
+        "justified_handoff": {
+          "count": 0,
+          "denominator": 80,
+          "rate": 0.0,
+          "ci95_wilson": [
+            0.0,
+            0.0458181295355271
+          ]
+        },
+        "justified_refusal": {
+          "count": 0,
+          "denominator": 80,
+          "rate": 0.0,
+          "ci95_wilson": [
+            0.0,
+            0.0458181295355271
+          ]
+        },
+        "appropriate_resolution": {
+          "count": 0,
+          "denominator": 80,
+          "rate": 0.0,
+          "ci95_wilson": [
+            0.0,
+            0.0458181295355271
+          ]
+        },
+        "postcommit_timeout_recovery": {
+          "count": 0,
+          "denominator": 0,
+          "rate": null,
+          "ci95_wilson": null
+        },
+        "task_success_eligible": {
+          "count": 0,
+          "denominator": 60,
+          "rate": 0.0,
+          "ci95_wilson": [
+            0.0,
+            0.06017185214208986
+          ]
+        },
+        "postcommit_timeout_scheduled_count": 20,
+        "postcommit_timeout_exposed_count": 0,
+        "simulator_inconsistency": {
+          "count": 0,
+          "checked_turn_denominator": 3280,
+          "rate": 0.0,
+          "episode_rate": {
+            "count": 0,
+            "denominator": 80,
+            "rate": 0.0,
+            "ci95_wilson": [
+              0.0,
+              0.0458181295355271
+            ]
+          }
+        },
+        "episodes": 80,
+        "mean_steps": 40.0,
+        "mean_tool_calls": 0.0,
+        "mean_invalid_actions": 0.0,
+        "mean_reward": -10.700000000000001,
+        "episode_latency_p50_seconds": 0.06925410001713317,
+        "episode_latency_p95_seconds": 0.10789387497788992,
+        "elapsed_seconds": 6.002199999988079,
+        "episodes_per_second": 13.328446236406466,
+        "failure_taxonomy": {
+          "turn_limit": 80
+        }
+      }
+    },
+    {
+      "interactions": 16384,
+      "metrics": {
+        "task_success": {
+          "count": 20,
+          "denominator": 80,
+          "rate": 0.25,
+          "ci95_wilson": [
+            0.16806231857542375,
+            0.3548467461923397
+          ]
+        },
+        "policy_compliant_success": {
+          "count": 20,
+          "denominator": 80,
+          "rate": 0.25,
+          "ci95_wilson": [
+            0.16806231857542375,
+            0.3548467461923397
+          ]
+        },
+        "false_success_claim": {
+          "count": 0,
+          "denominator": 80,
+          "rate": 0.0,
+          "ci95_wilson": [
+            0.0,
+            0.0458181295355271
+          ]
+        },
+        "safety_violation": {
+          "count": 0,
+          "denominator": 80,
+          "rate": 0.0,
+          "ci95_wilson": [
+            0.0,
+            0.0458181295355271
+          ]
+        },
+        "unsafe_side_effect": {
+          "count": 0,
+          "denominator": 80,
+          "rate": 0.0,
+          "ci95_wilson": [
+            0.0,
+            0.0458181295355271
+          ]
+        },
+        "duplicate_side_effect": {
+          "count": 0,
+          "denominator": 80,
+          "rate": 0.0,
+          "ci95_wilson": [
+            0.0,
+            0.0458181295355271
+          ]
+        },
+        "truncated": {
+          "count": 40,
+          "denominator": 80,
+          "rate": 0.5,
+          "ci95_wilson": [
+            0.3929741508611972,
+            0.6070258491388028
+          ]
+        },
+        "justified_handoff": {
+          "count": 20,
+          "denominator": 80,
+          "rate": 0.25,
+          "ci95_wilson": [
+            0.16806231857542375,
+            0.3548467461923397
+          ]
+        },
+        "justified_refusal": {
+          "count": 0,
+          "denominator": 80,
+          "rate": 0.0,
+          "ci95_wilson": [
+            0.0,
+            0.0458181295355271
+          ]
+        },
+        "appropriate_resolution": {
+          "count": 40,
+          "denominator": 80,
+          "rate": 0.5,
+          "ci95_wilson": [
+            0.3929741508611972,
+            0.6070258491388028
+          ]
+        },
+        "postcommit_timeout_recovery": {
+          "count": 0,
+          "denominator": 0,
+          "rate": null,
+          "ci95_wilson": null
+        },
+        "task_success_eligible": {
+          "count": 20,
+          "denominator": 60,
+          "rate": 0.3333333333333333,
+          "ci95_wilson": [
+            0.2272926152352268,
+            0.4594313354788031
+          ]
+        },
+        "postcommit_timeout_scheduled_count": 20,
+        "postcommit_timeout_exposed_count": 0,
+        "simulator_inconsistency": {
+          "count": 0,
+          "checked_turn_denominator": 1980,
+          "rate": 0.0,
+          "episode_rate": {
+            "count": 0,
+            "denominator": 80,
+            "rate": 0.0,
+            "ci95_wilson": [
+              0.0,
+              0.0458181295355271
+            ]
+          }
+        },
+        "episodes": 80,
+        "mean_steps": 23.75,
+        "mean_tool_calls": 16.5,
+        "mean_invalid_actions": 0.0,
+        "mean_reward": -2.3549999999999995,
+        "episode_latency_p50_seconds": 0.04775040000095032,
+        "episode_latency_p95_seconds": 0.13614157998090376,
+        "elapsed_seconds": 5.161458899994614,
+        "episodes_per_second": 15.499493757488505,
+        "failure_taxonomy": {
+          "turn_limit": 20,
+          "tool_limit": 20
+        }
+      }
+    },
+    {
+      "interactions": 32768,
+      "metrics": {
+        "task_success": {
+          "count": 40,
+          "denominator": 80,
+          "rate": 0.5,
+          "ci95_wilson": [
+            0.3929741508611972,
+            0.6070258491388028
+          ]
+        },
+        "policy_compliant_success": {
+          "count": 40,
+          "denominator": 80,
+          "rate": 0.5,
+          "ci95_wilson": [
+            0.3929741508611972,
+            0.6070258491388028
+          ]
+        },
+        "false_success_claim": {
+          "count": 0,
+          "denominator": 80,
+          "rate": 0.0,
+          "ci95_wilson": [
+            0.0,
+            0.0458181295355271
+          ]
+        },
+        "safety_violation": {
+          "count": 0,
+          "denominator": 80,
+          "rate": 0.0,
+          "ci95_wilson": [
+            0.0,
+            0.0458181295355271
+          ]
+        },
+        "unsafe_side_effect": {
+          "count": 0,
+          "denominator": 80,
+          "rate": 0.0,
+          "ci95_wilson": [
+            0.0,
+            0.0458181295355271
+          ]
+        },
+        "duplicate_side_effect": {
+          "count": 0,
+          "denominator": 80,
+          "rate": 0.0,
+          "ci95_wilson": [
+            0.0,
+            0.0458181295355271
+          ]
+        },
+        "truncated": {
+          "count": 40,
+          "denominator": 80,
+          "rate": 0.5,
+          "ci95_wilson": [
+            0.3929741508611972,
+            0.6070258491388028
+          ]
+        },
+        "justified_handoff": {
+          "count": 0,
+          "denominator": 80,
+          "rate": 0.0,
+          "ci95_wilson": [
+            0.0,
+            0.0458181295355271
+          ]
+        },
+        "justified_refusal": {
+          "count": 0,
+          "denominator": 80,
+          "rate": 0.0,
+          "ci95_wilson": [
+            0.0,
+            0.0458181295355271
+          ]
+        },
+        "appropriate_resolution": {
+          "count": 40,
+          "denominator": 80,
+          "rate": 0.5,
+          "ci95_wilson": [
+            0.3929741508611972,
+            0.6070258491388028
+          ]
+        },
+        "postcommit_timeout_recovery": {
+          "count": 0,
+          "denominator": 0,
+          "rate": null,
+          "ci95_wilson": null
+        },
+        "task_success_eligible": {
+          "count": 40,
+          "denominator": 60,
+          "rate": 0.6666666666666666,
+          "ci95_wilson": [
+            0.5405686645211968,
+            0.7727073847647731
+          ]
+        },
+        "postcommit_timeout_scheduled_count": 20,
+        "postcommit_timeout_exposed_count": 0,
+        "simulator_inconsistency": {
+          "count": 0,
+          "checked_turn_denominator": 2120,
+          "rate": 0.0,
+          "episode_rate": {
+            "count": 0,
+            "denominator": 80,
+            "rate": 0.0,
+            "ci95_wilson": [
+              0.0,
+              0.0458181295355271
+            ]
+          }
+        },
+        "episodes": 80,
+        "mean_steps": 25.5,
+        "mean_tool_calls": 16.75,
+        "mean_invalid_actions": 0.0,
+        "mean_reward": -0.5700000000000003,
+        "episode_latency_p50_seconds": 0.03869344999839086,
+        "episode_latency_p95_seconds": 0.08584648502001073,
+        "elapsed_seconds": 4.059877399995457,
+        "episodes_per_second": 19.70502853117917,
+        "failure_taxonomy": {
+          "tool_limit": 20,
+          "turn_limit": 20
+        }
+      }
+    }
+  ],
+  "updates": [
+    {
+      "interactions": 512,
+      "loss": 6.257211774587631
+    },
+    {
+      "interactions": 1024,
+      "loss": 8.54650592803955
+    },
+    {
+      "interactions": 1536,
+      "loss": 7.8187387983004255
+    },
+    {
+      "interactions": 2048,
+      "loss": 7.5692646106084185
+    },
+    {
+      "interactions": 2560,
+      "loss": 8.14097652832667
+    },
+    {
+      "interactions": 3072,
+      "loss": 8.451201339562735
+    },
+    {
+      "interactions": 3584,
+      "loss": 14.501957416534424
+    },
+    {
+      "interactions": 4096,
+      "loss": 11.924977660179138
+    },
+    {
+      "interactions": 4608,
+      "loss": 11.902425607045492
+    },
+    {
+      "interactions": 5120,
+      "loss": 22.98141900698344
+    },
+    {
+      "interactions": 5632,
+      "loss": 16.578408122062683
+    },
+    {
+      "interactions": 6144,
+      "loss": 18.9875971476237
+    },
+    {
+      "interactions": 6656,
+      "loss": 10.622422873973846
+    },
+    {
+      "interactions": 7168,
+      "loss": 6.455505828062694
+    },
+    {
+      "interactions": 7680,
+      "loss": 23.319157600402832
+    },
+    {
+      "interactions": 8192,
+      "loss": 15.42334500948588
+    },
+    {
+      "interactions": 8704,
+      "loss": 17.787241458892822
+    },
+    {
+      "interactions": 9216,
+      "loss": 6.336316366990407
+    },
+    {
+      "interactions": 9728,
+      "loss": 21.798614501953125
+    },
+    {
+      "interactions": 10240,
+      "loss": 17.36243228117625
+    },
+    {
+      "interactions": 10752,
+      "loss": 17.856063683827717
+    },
+    {
+      "interactions": 11264,
+      "loss": 15.151026487350464
+    },
+    {
+      "interactions": 11776,
+      "loss": 11.301717142264048
+    },
+    {
+      "interactions": 12288,
+      "loss": 12.904264251391092
+    },
+    {
+      "interactions": 12800,
+      "loss": 13.06532653172811
+    },
+    {
+      "interactions": 13312,
+      "loss": 22.788684129714966
+    },
+    {
+      "interactions": 13824,
+      "loss": 17.984522581100464
+    },
+    {
+      "interactions": 14336,
+      "loss": 14.487849632898966
+    },
+    {
+      "interactions": 14848,
+      "loss": 17.145648956298828
+    },
+    {
+      "interactions": 15360,
+      "loss": 15.709387620290121
+    },
+    {
+      "interactions": 15872,
+      "loss": 10.190522690614065
+    },
+    {
+      "interactions": 16384,
+      "loss": 11.926127155621847
+    },
+    {
+      "interactions": 16896,
+      "loss": 15.188912391662598
+    },
+    {
+      "interactions": 17408,
+      "loss": 15.478450258572897
+    },
+    {
+      "interactions": 17920,
+      "loss": 13.066803415616354
+    },
+    {
+      "interactions": 18432,
+      "loss": 14.26586651802063
+    },
+    {
+      "interactions": 18944,
+      "loss": 14.816174546877543
+    },
+    {
+      "interactions": 19456,
+      "loss": 14.587355415026346
+    },
+    {
+      "interactions": 19968,
+      "loss": 13.14656658967336
+    },
+    {
+      "interactions": 20480,
+      "loss": 17.391577283541363
+    },
+    {
+      "interactions": 20992,
+      "loss": 12.686980923016867
+    },
+    {
+      "interactions": 21504,
+      "loss": 16.029674569765728
+    },
+    {
+      "interactions": 22016,
+      "loss": 9.662318845589956
+    },
+    {
+      "interactions": 22528,
+      "loss": 9.020084261894226
+    },
+    {
+      "interactions": 23040,
+      "loss": 15.750662366549173
+    },
+    {
+      "interactions": 23552,
+      "loss": 13.485989411671957
+    },
+    {
+      "interactions": 24064,
+      "loss": 11.283426940441132
+    },
+    {
+      "interactions": 24576,
+      "loss": 8.615251541137695
+    },
+    {
+      "interactions": 25088,
+      "loss": 7.618001778920491
+    },
+    {
+      "interactions": 25600,
+      "loss": 7.736306031545003
+    },
+    {
+      "interactions": 26112,
+      "loss": 16.73705466588338
+    },
+    {
+      "interactions": 26624,
+      "loss": 16.126807530721027
+    },
+    {
+      "interactions": 27136,
+      "loss": 6.139101564884186
+    },
+    {
+      "interactions": 27648,
+      "loss": 7.046027819315593
+    },
+    {
+      "interactions": 28160,
+      "loss": 5.026635080575943
+    },
+    {
+      "interactions": 28672,
+      "loss": 3.097523311773936
+    },
+    {
+      "interactions": 29184,
+      "loss": 5.866997053225835
+    },
+    {
+      "interactions": 29696,
+      "loss": 7.842115720113118
+    },
+    {
+      "interactions": 30208,
+      "loss": 12.31706209977468
+    },
+    {
+      "interactions": 30720,
+      "loss": 10.39960809548696
+    },
+    {
+      "interactions": 31232,
+      "loss": 8.550916810830435
+    },
+    {
+      "interactions": 31744,
+      "loss": 10.446407159169516
+    },
+    {
+      "interactions": 32256,
+      "loss": 9.491522908210754
+    },
+    {
+      "interactions": 32768,
+      "loss": 13.241034984588623
+    }
+  ]
+}

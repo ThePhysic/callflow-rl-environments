@@ -1,0 +1,55 @@
+{
+  "config": {
+    "training_seeds": [
+      11,
+      29,
+      47
+    ],
+    "total_steps": 32768,
+    "checkpoint_steps": [
+      0,
+      8192,
+      16384,
+      32768
+    ],
+    "rollout_steps": 512,
+    "update_epochs": 6,
+    "minibatch_size": 128,
+    "hidden_size": 64,
+    "learning_rate": 0.0005,
+    "gamma": 0.99,
+    "gae_lambda": 0.95,
+    "clip_ratio": 0.2,
+    "value_coefficient": 0.5,
+    "entropy_coefficient": 0.015,
+    "max_grad_norm": 0.5,
+    "reward_mode": "shaped",
+    "torch_threads": 1,
+    "evaluation_split": "dev",
+    "evaluation_seed": 2026,
+    "public_action_mask": "public-workflow-v1"
+  },
+  "build_revision": "837af56e8524ff61285ab6cbb8b2107065d5b7cf",
+  "source_hash": "a04aa364c8761e5fda28c106afec70d066980877fa70f67eec27199fe074db1a",
+  "manifests": {
+    "train": "da042501a22780f6799332e504a844a4552e3f29dfc6ac6388d36fe62bc17c67",
+    "dev": "10bee7ce5d4d951737e8a1cd7d07e9970a235c98adb5f25332a9969fa51b04d2",
+    "test": "3b73b1927ec330ea7ca6d45b31d7f1cbd6ae77cab80b1d19e07d209a1a44d31e",
+    "transfer": "b7fae44da546e4daa64f1853837da229260e66ad2c9d522bfdf3480e34d03964"
+  },
+  "selection_rule": "Use final pre-registered interaction budget for every run; no test-based selection.",
+  "baseline_seeds": [
+    11,
+    29,
+    47
+  ],
+  "sparse_comparison_seeds": [
+    11
+  ],
+  "no_fault_ablation_seeds": [
+    11
+  ],
+  "exploratory_caveat": "Sparse and no-fault comparisons use one seed and are descriptive only.",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "processor": "AMD64 Family 25 Model 116 Stepping 1, AuthenticAMD"
+}

@@ -1,0 +1,555 @@
+[
+  {
+    "interactions": 0,
+    "metrics": {
+      "task_success": {
+        "count": 0,
+        "denominator": 80,
+        "rate": 0.0,
+        "ci95_wilson": [
+          0.0,
+          0.0458181295355271
+        ]
+      },
+      "policy_compliant_success": {
+        "count": 0,
+        "denominator": 80,
+        "rate": 0.0,
+        "ci95_wilson": [
+          0.0,
+          0.0458181295355271
+        ]
+      },
+      "false_success_claim": {
+        "count": 0,
+        "denominator": 80,
+        "rate": 0.0,
+        "ci95_wilson": [
+          0.0,
+          0.0458181295355271
+        ]
+      },
+      "safety_violation": {
+        "count": 0,
+        "denominator": 80,
+        "rate": 0.0,
+        "ci95_wilson": [
+          0.0,
+          0.0458181295355271
+        ]
+      },
+      "unsafe_side_effect": {
+        "count": 0,
+        "denominator": 80,
+        "rate": 0.0,
+        "ci95_wilson": [
+          0.0,
+          0.0458181295355271
+        ]
+      },
+      "duplicate_side_effect": {
+        "count": 0,
+        "denominator": 80,
+        "rate": 0.0,
+        "ci95_wilson": [
+          0.0,
+          0.0458181295355271
+        ]
+      },
+      "truncated": {
+        "count": 80,
+        "denominator": 80,
+        "rate": 1.0,
+        "ci95_wilson": [
+          0.9541818704644728,
+          0.9999999999999999
+        ]
+      },
+      "justified_handoff": {
+        "count": 0,
+        "denominator": 80,
+        "rate": 0.0,
+        "ci95_wilson": [
+          0.0,
+          0.0458181295355271
+        ]
+      },
+      "justified_refusal": {
+        "count": 0,
+        "denominator": 80,
+        "rate": 0.0,
+        "ci95_wilson": [
+          0.0,
+          0.0458181295355271
+        ]
+      },
+      "appropriate_resolution": {
+        "count": 0,
+        "denominator": 80,
+        "rate": 0.0,
+        "ci95_wilson": [
+          0.0,
+          0.0458181295355271
+        ]
+      },
+      "postcommit_timeout_recovery": {
+        "count": 0,
+        "denominator": 0,
+        "rate": null,
+        "ci95_wilson": null
+      },
+      "task_success_eligible": {
+        "count": 0,
+        "denominator": 60,
+        "rate": 0.0,
+        "ci95_wilson": [
+          0.0,
+          0.06017185214208986
+        ]
+      },
+      "postcommit_timeout_scheduled_count": 20,
+      "postcommit_timeout_exposed_count": 0,
+      "simulator_inconsistency": {
+        "count": 0,
+        "checked_turn_denominator": 3280,
+        "rate": 0.0,
+        "episode_rate": {
+          "count": 0,
+          "denominator": 80,
+          "rate": 0.0,
+          "ci95_wilson": [
+            0.0,
+            0.0458181295355271
+          ]
+        }
+      },
+      "episodes": 80,
+      "mean_steps": 40.0,
+      "mean_tool_calls": 5.25,
+      "mean_invalid_actions": 0.0,
+      "mean_reward": -10.780000000000001,
+      "episode_latency_p50_seconds": 0.08255694998661056,
+      "episode_latency_p95_seconds": 0.09826909000839805,
+      "elapsed_seconds": 6.527545899996767,
+      "episodes_per_second": 12.255754494202733,
+      "failure_taxonomy": {
+        "turn_limit": 80
+      }
+    }
+  },
+  {
+    "interactions": 8192,
+    "metrics": {
+      "task_success": {
+        "count": 0,
+        "denominator": 80,
+        "rate": 0.0,
+        "ci95_wilson": [
+          0.0,
+          0.0458181295355271
+        ]
+      },
+      "policy_compliant_success": {
+        "count": 0,
+        "denominator": 80,
+        "rate": 0.0,
+        "ci95_wilson": [
+          0.0,
+          0.0458181295355271
+        ]
+      },
+      "false_success_claim": {
+        "count": 0,
+        "denominator": 80,
+        "rate": 0.0,
+        "ci95_wilson": [
+          0.0,
+          0.0458181295355271
+        ]
+      },
+      "safety_violation": {
+        "count": 0,
+        "denominator": 80,
+        "rate": 0.0,
+        "ci95_wilson": [
+          0.0,
+          0.0458181295355271
+        ]
+      },
+      "unsafe_side_effect": {
+        "count": 0,
+        "denominator": 80,
+        "rate": 0.0,
+        "ci95_wilson": [
+          0.0,
+          0.0458181295355271
+        ]
+      },
+      "duplicate_side_effect": {
+        "count": 0,
+        "denominator": 80,
+        "rate": 0.0,
+        "ci95_wilson": [
+          0.0,
+          0.0458181295355271
+        ]
+      },
+      "truncated": {
+        "count": 80,
+        "denominator": 80,
+        "rate": 1.0,
+        "ci95_wilson": [
+          0.9541818704644728,
+          0.9999999999999999
+        ]
+      },
+      "justified_handoff": {
+        "count": 0,
+        "denominator": 80,
+        "rate": 0.0,
+        "ci95_wilson": [
+          0.0,
+          0.0458181295355271
+        ]
+      },
+      "justified_refusal": {
+        "count": 0,
+        "denominator": 80,
+        "rate": 0.0,
+        "ci95_wilson": [
+          0.0,
+          0.0458181295355271
+        ]
+      },
+      "appropriate_resolution": {
+        "count": 0,
+        "denominator": 80,
+        "rate": 0.0,
+        "ci95_wilson": [
+          0.0,
+          0.0458181295355271
+        ]
+      },
+      "postcommit_timeout_recovery": {
+        "count": 0,
+        "denominator": 0,
+        "rate": null,
+        "ci95_wilson": null
+      },
+      "task_success_eligible": {
+        "count": 0,
+        "denominator": 60,
+        "rate": 0.0,
+        "ci95_wilson": [
+          0.0,
+          0.06017185214208986
+        ]
+      },
+      "postcommit_timeout_scheduled_count": 20,
+      "postcommit_timeout_exposed_count": 0,
+      "simulator_inconsistency": {
+        "count": 0,
+        "checked_turn_denominator": 3280,
+        "rate": 0.0,
+        "episode_rate": {
+          "count": 0,
+          "denominator": 80,
+          "rate": 0.0,
+          "ci95_wilson": [
+            0.0,
+            0.0458181295355271
+          ]
+        }
+      },
+      "episodes": 80,
+      "mean_steps": 40.0,
+      "mean_tool_calls": 0.0,
+      "mean_invalid_actions": 0.0,
+      "mean_reward": -10.725000000000003,
+      "episode_latency_p50_seconds": 0.04441380000207573,
+      "episode_latency_p95_seconds": 0.0722866500087548,
+      "elapsed_seconds": 3.8327512000105344,
+      "episodes_per_second": 20.872734969016545,
+      "failure_taxonomy": {
+        "turn_limit": 80
+      }
+    }
+  },
+  {
+    "interactions": 16384,
+    "metrics": {
+      "task_success": {
+        "count": 40,
+        "denominator": 80,
+        "rate": 0.5,
+        "ci95_wilson": [
+          0.3929741508611972,
+          0.6070258491388028
+        ]
+      },
+      "policy_compliant_success": {
+        "count": 40,
+        "denominator": 80,
+        "rate": 0.5,
+        "ci95_wilson": [
+          0.3929741508611972,
+          0.6070258491388028
+        ]
+      },
+      "false_success_claim": {
+        "count": 0,
+        "denominator": 80,
+        "rate": 0.0,
+        "ci95_wilson": [
+          0.0,
+          0.0458181295355271
+        ]
+      },
+      "safety_violation": {
+        "count": 0,
+        "denominator": 80,
+        "rate": 0.0,
+        "ci95_wilson": [
+          0.0,
+          0.0458181295355271
+        ]
+      },
+      "unsafe_side_effect": {
+        "count": 0,
+        "denominator": 80,
+        "rate": 0.0,
+        "ci95_wilson": [
+          0.0,
+          0.0458181295355271
+        ]
+      },
+      "duplicate_side_effect": {
+        "count": 0,
+        "denominator": 80,
+        "rate": 0.0,
+        "ci95_wilson": [
+          0.0,
+          0.0458181295355271
+        ]
+      },
+      "truncated": {
+        "count": 20,
+        "denominator": 80,
+        "rate": 0.25,
+        "ci95_wilson": [
+          0.16806231857542375,
+          0.3548467461923397
+        ]
+      },
+      "justified_handoff": {
+        "count": 20,
+        "denominator": 80,
+        "rate": 0.25,
+        "ci95_wilson": [
+          0.16806231857542375,
+          0.3548467461923397
+        ]
+      },
+      "justified_refusal": {
+        "count": 0,
+        "denominator": 80,
+        "rate": 0.0,
+        "ci95_wilson": [
+          0.0,
+          0.0458181295355271
+        ]
+      },
+      "appropriate_resolution": {
+        "count": 60,
+        "denominator": 80,
+        "rate": 0.75,
+        "ci95_wilson": [
+          0.6451532538076602,
+          0.8319376814245761
+        ]
+      },
+      "postcommit_timeout_recovery": {
+        "count": 0,
+        "denominator": 0,
+        "rate": null,
+        "ci95_wilson": null
+      },
+      "task_success_eligible": {
+        "count": 40,
+        "denominator": 60,
+        "rate": 0.6666666666666666,
+        "ci95_wilson": [
+          0.5405686645211968,
+          0.7727073847647731
+        ]
+      },
+      "postcommit_timeout_scheduled_count": 20,
+      "postcommit_timeout_exposed_count": 0,
+      "simulator_inconsistency": {
+        "count": 0,
+        "checked_turn_denominator": 2120,
+        "rate": 0.0,
+        "episode_rate": {
+          "count": 0,
+          "denominator": 80,
+          "rate": 0.0,
+          "ci95_wilson": [
+            0.0,
+            0.0458181295355271
+          ]
+        }
+      },
+      "episodes": 80,
+      "mean_steps": 25.5,
+      "mean_tool_calls": 3.0,
+      "mean_invalid_actions": 0.0,
+      "mean_reward": 2.955,
+      "episode_latency_p50_seconds": 0.03884979999565985,
+      "episode_latency_p95_seconds": 0.09468103502294979,
+      "elapsed_seconds": 3.957900800014613,
+      "episodes_per_second": 20.2127349931824,
+      "failure_taxonomy": {
+        "turn_limit": 20
+      }
+    }
+  },
+  {
+    "interactions": 32768,
+    "metrics": {
+      "task_success": {
+        "count": 0,
+        "denominator": 80,
+        "rate": 0.0,
+        "ci95_wilson": [
+          0.0,
+          0.0458181295355271
+        ]
+      },
+      "policy_compliant_success": {
+        "count": 0,
+        "denominator": 80,
+        "rate": 0.0,
+        "ci95_wilson": [
+          0.0,
+          0.0458181295355271
+        ]
+      },
+      "false_success_claim": {
+        "count": 0,
+        "denominator": 80,
+        "rate": 0.0,
+        "ci95_wilson": [
+          0.0,
+          0.0458181295355271
+        ]
+      },
+      "safety_violation": {
+        "count": 0,
+        "denominator": 80,
+        "rate": 0.0,
+        "ci95_wilson": [
+          0.0,
+          0.0458181295355271
+        ]
+      },
+      "unsafe_side_effect": {
+        "count": 0,
+        "denominator": 80,
+        "rate": 0.0,
+        "ci95_wilson": [
+          0.0,
+          0.0458181295355271
+        ]
+      },
+      "duplicate_side_effect": {
+        "count": 0,
+        "denominator": 80,
+        "rate": 0.0,
+        "ci95_wilson": [
+          0.0,
+          0.0458181295355271
+        ]
+      },
+      "truncated": {
+        "count": 80,
+        "denominator": 80,
+        "rate": 1.0,
+        "ci95_wilson": [
+          0.9541818704644728,
+          0.9999999999999999
+        ]
+      },
+      "justified_handoff": {
+        "count": 0,
+        "denominator": 80,
+        "rate": 0.0,
+        "ci95_wilson": [
+          0.0,
+          0.0458181295355271
+        ]
+      },
+      "justified_refusal": {
+        "count": 0,
+        "denominator": 80,
+        "rate": 0.0,
+        "ci95_wilson": [
+          0.0,
+          0.0458181295355271
+        ]
+      },
+      "appropriate_resolution": {
+        "count": 0,
+        "denominator": 80,
+        "rate": 0.0,
+        "ci95_wilson": [
+          0.0,
+          0.0458181295355271
+        ]
+      },
+      "postcommit_timeout_recovery": {
+        "count": 0,
+        "denominator": 0,
+        "rate": null,
+        "ci95_wilson": null
+      },
+      "task_success_eligible": {
+        "count": 0,
+        "denominator": 60,
+        "rate": 0.0,
+        "ci95_wilson": [
+          0.0,
+          0.06017185214208986
+        ]
+      },
+      "postcommit_timeout_scheduled_count": 20,
+      "postcommit_timeout_exposed_count": 0,
+      "simulator_inconsistency": {
+        "count": 0,
+        "checked_turn_denominator": 2080,
+        "rate": 0.0,
+        "episode_rate": {
+          "count": 0,
+          "denominator": 80,
+          "rate": 0.0,
+          "ci95_wilson": [
+            0.0,
+            0.0458181295355271
+          ]
+        }
+      },
+      "episodes": 80,
+      "mean_steps": 25.0,
+      "mean_tool_calls": 15.5,
+      "mean_invalid_actions": 0.0,
+      "mean_reward": -10.635,
+      "episode_latency_p50_seconds": 0.04309070001181681,
+      "episode_latency_p95_seconds": 0.10394693500857101,
+      "elapsed_seconds": 4.639575299981516,
+      "episodes_per_second": 17.242957561292027,
+      "failure_taxonomy": {
+        "tool_limit": 60,
+        "turn_limit": 20
+      }
+    }
+  }
+]
