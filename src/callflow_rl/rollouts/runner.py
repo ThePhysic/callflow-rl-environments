@@ -5,6 +5,7 @@ from __future__ import annotations
 import copy
 import hashlib
 import json
+import os
 import platform
 import time
 from concurrent.futures import ProcessPoolExecutor, as_completed
@@ -162,6 +163,7 @@ def _worker(task: dict[str, Any]) -> dict[str, Any]:
     )
     result = trace.to_dict()
     result["metadata"]["infrastructure_attempt"] = task["attempt"]
+    result["metadata"]["worker_pid"] = os.getpid()
     return result
 
 
@@ -218,6 +220,7 @@ def run_batch(
         "benchmark": {
             "episode_count": len(complete),
             "workers": workers,
+            "observed_worker_processes": len({r["metadata"]["worker_pid"] for r in complete}),
             "wall_seconds_including_worker_startup": elapsed,
             "episodes_per_second": len(complete) / elapsed,
             "p50_episode_seconds": float(np.percentile(latencies, 50)),

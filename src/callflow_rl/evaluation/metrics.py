@@ -57,6 +57,9 @@ def summarize(records: list[dict[str, Any]], elapsed: float | None = None) -> di
     }
     exposed = [record for record in records if record.get("had_postcommit_timeout")]
     metrics["postcommit_timeout_recovery"] = _rate(exposed, "task_success")
+    metrics["ambiguous_timeout_recovery"] = _rate(
+        [record for record in records if record.get("had_ambiguous_timeout")], "task_success"
+    )
     eligible = [record for record in records if record.get("completion_eligible", True)]
     metrics["task_success_eligible"] = _rate(eligible, "task_success")
     metrics["postcommit_timeout_scheduled_count"] = sum(

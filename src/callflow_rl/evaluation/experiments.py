@@ -124,11 +124,11 @@ def run_experiments(
 
 def source_fingerprint() -> str:
     """Content fingerprint includes uncommitted source, unlike Git HEAD alone."""
-    root = Path(__file__).resolve().parents[3]
+    root = Path(__file__).resolve().parents[1]
     digest = hashlib.sha256()
-    for path in sorted((root / "src" / "callflow_rl").rglob("*.py")):
-        digest.update(path.relative_to(root).as_posix().encode())
-        digest.update(path.read_bytes())
+    for path in sorted(root.rglob("*.py")):
+        digest.update(("src/callflow_rl/" + path.relative_to(root).as_posix()).encode())
+        digest.update(path.read_bytes().replace(b"\r\n", b"\n"))
     return digest.hexdigest()
 
 

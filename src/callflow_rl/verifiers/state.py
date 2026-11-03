@@ -165,6 +165,11 @@ def verify(scenario: Any, state: dict[str, Any]) -> dict[str, Any]:
             e["kind"] == "simulator_check" and not e["consistent"] for e in audit
         ),
         "had_ambiguous_timeout": any(k in {"timeout_before", "timeout_after"} for k in faults),
-        "had_postcommit_timeout": "timeout_after" in faults,
+        "had_postcommit_timeout": any(
+            e["kind"] == "fault"
+            and e["fault"]["kind"] == "timeout_after"
+            and e.get("operation_committed", False)
+            for e in audit
+        ),
         "fault_kinds": faults,
     }

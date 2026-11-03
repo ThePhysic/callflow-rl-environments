@@ -325,11 +325,17 @@ class CallFlowEnv:
                 break
         if name in WRITE_TOOLS:
             s["pending_write"] = deepcopy(action)
+        fault_event: dict[str, Any] | None = None
         if fault:
             s["clock"] += float(fault.get("latency", 1.0))
-            s["audit"].append(
-                {"kind": "fault", "fault": deepcopy(fault), "turn": s["turn"], "time": s["clock"]}
-            )
+            fault_event = {
+                "kind": "fault",
+                "fault": deepcopy(fault),
+                "turn": s["turn"],
+                "time": s["clock"],
+                "operation_committed": False,
+            }
+            s["audit"].append(fault_event)
         kind = fault["kind"] if fault else None
         service = SchedulingService(s)
         result: dict[str, Any]
@@ -343,6 +349,10 @@ class CallFlowEnv:
                 if slot:
                     slot["version"] += 1
             result = service.call(name, args)
+            if fault_event is not None:
+                # This evaluator-only fact is captured before losing the response.
+                # An idempotent replay also proves that the requested write committed.
+                fault_event["operation_committed"] = bool(name in WRITE_TOOLS and result["ok"])
             if kind == "stale" and name == "get_availability" and result["ok"]:
                 returned = {x["id"] for x in result["slots"]}
                 for slot in s["world"]["slots"]:
@@ -369,12 +379,22 @@ class CallFlowEnv:
         # Explicit report fields are preferred. Unqualified natural-language success
         # assertions are also audited, so omitting the fields cannot bypass penalties.
         claimed = status in {"active", "cancelled"}
-        natural = bool(re.search(r"\b(booked|confirmed|cancelled|canceled|reserved)\b", text, re.I))
-        negated = bool(re.search(r"\b(not|cannot|can't|unable|never|no)\b", text, re.I))
-        if claimed or (natural and not negated):
+        claim_word = None
+        # Negation belongs to its own clause. A courtesy "No problem," or a
+        # separate refusal cannot conceal a later assertion that a booking exists.
+        for clause in re.split(
+            r"[,;:.!?\n\u2013\u2014]|\b(?:and|but|however|yet)\b", text, flags=re.I
+        ):
+            if re.search(r"\b(not|cannot|can't|unable|never|no)\b", clause, re.I):
+                continue
+            match = re.search(r"\b(booked|confirmed|cancelled|canceled|reserved)\b", clause, re.I)
+            if match:
+                claim_word = match.group(1).lower()
+                break
+        if claimed or claim_word is not None:
             booking_id = action.get("booking_id")
             inferred_status = status or (
-                "cancelled" if re.search(r"cancel", text, re.I) else "active"
+                "cancelled" if claim_word in {"cancelled", "canceled"} else "active"
             )
             actual = s["world"]["bookings"].get(booking_id)
             observed = next(

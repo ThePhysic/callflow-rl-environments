@@ -105,3 +105,21 @@ narrow subset under this budget. Further work should use development-only
 diagnostics to study exploration, shaping magnitude and redundant public choices,
 then register a new plan before running it. These initial negative and partial
 results remain part of the project evidence.
+
+The one-seed sparse comparison finishes at 40/80 development tasks and 50/200
+held-out tasks, compared with 20/80 and 50/200 for the shaped run with the same
+seed. This does not establish a shaping benefit. The no-fault-training ablation
+reaches 40/80 development tasks at 16,384 interactions but collapses to 0/80 at the
+registered final budget, also finishing at 0/200 held-out tasks. The intermediate
+checkpoint was not substituted for the final checkpoint. These observations
+demonstrate non-monotonic learning and instability, not a reliable causal effect
+from removing tool-fault training.
+
+The sparse variant overrides the common YAML `reward_mode` with `sparse` in the
+registered trainer; its `variant` field identifies that override even though the
+shared configuration dictionary remains unchanged. Release provenance records
+the actual training reward mode explicitly. Guard/metadata fixes after training
+retain the original training build and all original evaluation JSON files, then
+refresh evaluations with the same checkpoints through
+`examples/refresh_evaluations.py`. The refresh compares per-scenario outcomes and
+records both source versions and checkpoint hashes in `evaluation_release.json`.
