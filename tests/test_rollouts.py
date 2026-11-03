@@ -61,6 +61,14 @@ def test_modified_reward_and_wrong_build_rejected():
         replay(trace)
 
 
+def test_trace_explains_every_reward_component():
+    trace = successful_trace()
+    for step in trace.steps:
+        explanation = step["info"]["reward_explanation"]
+        assert sum(explanation["components"].values()) == pytest.approx(step["reward"])
+        assert "reward_explanation" not in step["observation"]
+
+
 def test_branch_from_snapshot_does_not_mutate_original():
     trace = successful_trace()
     saved = copy.deepcopy(trace.to_dict())

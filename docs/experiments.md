@@ -4,6 +4,11 @@ CallFlow trains a compact actor/critic with clipped PPO and generalized advantag
 estimation on 64 public numeric features and 20 bounded decisions. Two 64-unit
 tanh layers feed categorical action logits and a scalar value head. This trains
 network weights; it does not train unrestricted English or a language model.
+The algorithm follows the clipped surrogate objective in
+[Proximal Policy Optimization Algorithms](https://arxiv.org/abs/1707.06347) and
+the advantage estimator in [Generalized Advantage Estimation](https://arxiv.org/abs/1506.02438).
+This repository implements its own small trainer; those algorithmic ideas are
+credited to their original authors.
 
 The random and PPO policies share `policies/decisions.py` public workflow
 scaffolding. Missing-argument writes are unavailable, END requires an observed
