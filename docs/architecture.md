@@ -53,6 +53,9 @@ fingerprint, scenario/hash, policy version, full action/response stream, pre/pos
 state hashes, rewards, verifier decisions and resource consumption are recorded.
 Infrastructure retries appear in trace metadata rather than being counted as
 additional policy decisions.
+An actual worker-process crash replaces the broken executor; completed results
+survive, and unfinished tasks consume their own bounded retry budgets. The
+benchmark distinguishes task resubmissions from `worker_pool_restarts`.
 
 ## Replay and branching
 
@@ -68,6 +71,12 @@ for investigation. Playback returns saved outputs without calling simulators;
 it supports inspection of stochastic/external outputs but does not prove their
 causal validity. No LLM or external simulator is required by this release.
 
+Trace version 2 also checks every supplied snapshot and deterministic resource
+aggregate during exact replay. `tool_calls` counts dispatched API requests;
+`tool_decisions` counts attempted CALL_TOOL decisions, including schema rejections.
+Version 1 remains readable and retains its historical attempted-call meaning.
+Wall time is required to be finite and nonnegative, but is not reproduced exactly.
+
 Counterfactual branching restores a saved pre-action snapshot (or reconstructs
 one from the recorded prefix), changes an action or evaluator-injected fault,
 and runs a continuation policy. The original trace and scenario are unchanged.
@@ -81,3 +90,11 @@ can differ across PyTorch versions or hardware; pinned dependencies, CPU thread
 settings, independent run seeds and fixed evaluation suites make this visible.
 Measured simulator results are evidence about these authored synthetic tasks,
 not evidence of production speech or open-domain conversational competence.
+
+An environment without an explicit scenario regenerates its default scenario
+from each requested reset seed; an explicitly supplied ScenarioSpec stays fixed.
+Snapshots retain that mode. Virtual time budgets apply to END and HANDOFF as
+well as tool/dialogue steps, with completion at the exact deadline permitted.
+An in-flight write that outlasts the budget remains in the database/audit even
+though the episode truncates. Supported horizon and fault durations are bounded
+by `2**40` virtual seconds to preserve finite arithmetic and unit-turn precision.

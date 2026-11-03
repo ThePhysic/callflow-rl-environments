@@ -1,0 +1,10 @@
+{
+  "audit": "Post-release 0.1.2 validation",
+  "source_revision": "4fd3e16cab823bbafd09f6987d35f29b8e35d3b5",
+  "source_hash": "14c4a630b942351c63af259a20bfd4b1aef5e38af9bd340210460aff0ef42429",
+  "approved_for_publication": true,
+  "new_outcome_return_resource_differences_from_previous_release": 0,
+  "retained_original_historical_differences": 1092,
+  "unchanged_checkpoints": 5,
+  "reason": "All 28 fresh evaluations preserve prior measured outcomes and returns; new verifier version and full snapshot hashes reflect the audited implementation. Historical corrections remain explicitly disclosed."
+}

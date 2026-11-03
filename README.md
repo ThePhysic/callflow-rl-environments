@@ -199,7 +199,8 @@ invariants, adversarial cases, learning math and worker isolation.
 
 Read the [scenario semantics](docs/scenarios.md), [ten golden cases](docs/golden-cases.md),
 [experiment protocol](docs/experiments.md), [release gates](docs/acceptance.md),
-[adversarial review record](docs/adversarial-review.md), and
+[adversarial review record](docs/adversarial-review.md),
+[follow-up audit](docs/postrelease-audit.md), and
 [development guide](CONTRIBUTING.md). The [original project brief](docs/project-brief.md)
 is preserved as a design document, not a claim of measured achievements.
 

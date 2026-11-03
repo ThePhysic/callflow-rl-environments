@@ -6,7 +6,7 @@ agent's text, `reported`, and any agent-added success flag cannot establish task
 completion. The transition engine writes the audit; policy actions cannot submit
 audit events, edit goals, inject faults or call evaluator/debug endpoints.
 
-Verifier `1.1.0` also checks every cancellation/rescheduling row against the
+Verifier `1.2.0` also checks every cancellation/rescheduling row against the
 reservation ID actually approved and authorized by the private task. Row identity,
 ownership, service and valid operation/version transitions must agree. Published
 service/location/handoff policy is read from the initial scenario and checked
@@ -85,6 +85,10 @@ failure penalty or hide the episode from evaluation denominators.
 
 Natural-language assertion checks cover common booking/cancellation assertion
 words, while the stable interface uses typed `booking_id`/`status` report fields.
+Every supported affirmative status class in the message is checked. A typed
+status cannot hide an opposite textual assertion, and a valid first clause cannot
+erase a later contradictory one. Negated clauses and cancellation confirmations
+retain their documented limited interpretation.
 This is a controlled text-event environment; regex guards are not a general
 semantic truth judge for unrestricted English. No LLM judge determines success.
 

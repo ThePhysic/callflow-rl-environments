@@ -12,7 +12,7 @@
     "goal_satisfied": true,
     "termination_reason": "ended",
     "invalid_action_count": 0,
-    "verifier_version": "1.1.0",
+    "verifier_version": "1.2.0",
     "violations": [],
     "step_count": 8,
     "tool_call_count": 4,
@@ -33,7 +33,7 @@
     "goal_satisfied": false,
     "termination_reason": "ended",
     "invalid_action_count": 0,
-    "verifier_version": "1.1.0",
+    "verifier_version": "1.2.0",
     "violations": [],
     "step_count": 1,
     "tool_call_count": 0,
@@ -48,6 +48,6 @@
     }
   ],
   "branch_reward": -9.92,
-  "final_state_hash": "7efd6249dd2969160b6613b48333770c5b45c52a584b8a426088cbbd9e9f2788",
+  "final_state_hash": "6e1880dcc49cf1e4b861108f8eac5f98bd219733a4b2f4508ec7497f9629ce36",
   "state_changed": true
 }

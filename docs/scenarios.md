@@ -26,6 +26,19 @@ UTC offset. The DST case distinguishes `2026-11-01T01:30:00-07:00` from
 `2026-11-01T01:30:00-08:00` with distinct slot IDs; this release does not infer an
 IANA time zone from a place name or claim natural-language date parsing.
 
+Custom scenarios with an initially mistyped account code can supply
+`user.principal_customer_id` as the evaluator-owned canonical caller identity.
+It must name an initial synthetic customer and is never part of policy-visible
+facts. Account-code corrections clear authentication and require a new lookup;
+they cannot switch the canonical principal. An unresolved identity-correction
+configuration without this trusted identity fails reset with a clear error.
+Unknown-caller handoff scenarios without identity corrections remain supported.
+Corrections invalidate superseded operation results, reports and refusal markers.
+
+Scenario and injected-fault data must contain finite JSON values. Turn/tool
+limits and fault occurrences are positive integers; the time horizon is in
+`(0, 2**40]` and individual fault latency is in `[0, 2**40]` virtual seconds.
+
 ## Authored archetypes and frozen partitions
 
 The catalog contains **34 authored archetypes**. Review the explicit branches in
@@ -45,7 +58,7 @@ chosen. No archetype or named behavior class crosses partitions. Shared operatio
 types (book/reschedule/cancel) are intentional: this measures behavioral transfer
 within one domain, not transfer to an unrelated business domain.
 
-In environment `0.1.1`, offering a new slot during cancellation produces an
+Since environment `0.1.1`, offering a new slot during cancellation produces an
 intent reminder and revokes prior consent; it does not mean the cancellation
 itself was declined. Truth-model checks detect task-incompatible accepted offers
 and accepted slots inconsistent with current customer preferences. An accepted

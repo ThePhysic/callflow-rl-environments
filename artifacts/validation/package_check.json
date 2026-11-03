@@ -1,11 +1,13 @@
 {
-  "build_revision": "c80e5984653e7d7495982751aff2bdd481e10689",
-  "package_version": "0.1.1",
-  "method": "uv build, inspect wheel/sdist, extract wheel to ignored directory, import ahead of editable checkout from external cwd using existing locked dependencies",
-  "wheel": "dist\\callflow_rl-0.1.1-py3-none-any.whl",
-  "wheel_sha256": "6e1114563f46582eff20591b50b1bcc0a80a7f9de098fd8ded5d972f3e93c47a",
+  "build_revision": "4fd3e16cab823bbafd09f6987d35f29b8e35d3b5",
+  "package_version": "0.1.2",
+  "method": "uv build --offline in isolated build environment, inspect wheel/sdist, extract wheel to ignored directory, import with isolated Python from external cwd using existing locked dependencies; runtime venv unchanged",
+  "wheel": "dist\\callflow_rl-0.1.2-py3-none-any.whl",
+  "wheel_sha256": "f59360d150f93ac4c031519efd2e602adecef7a118330c035db85e26132d6539",
+  "source_distribution": "dist\\callflow_rl-0.1.2.tar.gz",
+  "source_distribution_sha256": "761eca87460a391ee31f8d831644fb7f085fe3479448c24d1ee98ca514a76798",
   "wheel_member_count": 40,
-  "source_distribution_member_count": 229,
+  "source_distribution_member_count": 234,
   "required_package_data": [
     "callflow_rl/scenarios/manifests/index.json",
     "callflow_rl/scenarios/manifests/train.jsonl",
@@ -15,36 +17,47 @@
     "callflow_rl/scenarios/fixtures/golden_cases.json"
   ],
   "missing_package_data": [],
+  "missing_source_distribution_package_data": [],
+  "package_data_sha256": {
+    "callflow_rl/scenarios/manifests/index.json": "3a848ea038e59883f874e0ca5e147cff5fd80d67f37191f0872ceb7f66691879",
+    "callflow_rl/scenarios/manifests/train.jsonl": "da042501a22780f6799332e504a844a4552e3f29dfc6ac6388d36fe62bc17c67",
+    "callflow_rl/scenarios/manifests/dev.jsonl": "10bee7ce5d4d951737e8a1cd7d07e9970a235c98adb5f25332a9969fa51b04d2",
+    "callflow_rl/scenarios/manifests/test.jsonl": "3b73b1927ec330ea7ca6d45b31d7f1cbd6ae77cab80b1d19e07d209a1a44d31e",
+    "callflow_rl/scenarios/manifests/transfer.jsonl": "b7fae44da546e4daa64f1853837da229260e66ad2c9d522bfdf3480e34d03964",
+    "callflow_rl/scenarios/fixtures/golden_cases.json": "18ca04e6aa6ec43b6db2c8d08cb4808c576aa20b3e18e1ac99129ee7d9b6b58c"
+  },
+  "package_data_matches_checkout_in_both_archives": true,
   "entry_points": "[console_scripts]\ncallflow = callflow_rl.cli:main\n",
+  "external_cwd": "C:\\Users\\ridle\\AppData\\Local\\Temp\\callflow-package-smoke-0.1.2-sj90wlzl",
   "checks": {
     "validate": {
       "exit_code": 0,
-      "origin": "PACKAGE_ORIGIN=C:\\Users\\ridle\\callflow-rl-environments\\artifacts\\local\\package-smoke-0.1.1\\installed\\callflow_rl\\__init__.py",
+      "origin": "PACKAGE_ORIGIN=C:\\Users\\ridle\\callflow-rl-environments\\artifacts\\local\\package-smoke-0.1.2\\installed\\callflow_rl\\__init__.py",
       "stdout": "{\n  \"gymnasium_contract\": \"passed\",\n  \"suites\": {\n    \"train\": {\n      \"instances\": 160,\n      \"manifest_hash\": \"da042501a22780f6799332e504a844a4552e3f29dfc6ac6388d36fe62bc17c67\"\n    },\n    \"dev\": {\n      \"instances\": 80,\n      \"manifest_hash\": \"10bee7ce5d4d951737e8a1cd7d07e9970a235c98adb5f25332a9969fa51b04d2\"\n    },\n    \"test\": {\n      \"instances\": 200,\n      \"manifest_hash\": \"3b73b1927ec330ea7ca6d45b31d7f1cbd6ae77cab80b1d19e07d209a1a44d31e\"\n    },\n    \"transfer\": {\n      \"instances\": 40,\n      \"manifest_hash\": \"b7fae44da546e4daa64f1853837da229260e66ad2c9d522bfdf3480e34d03964\"\n    }\n  }\n}\n",
       "stderr": ""
     },
     "audit-rewards": {
       "exit_code": 0,
-      "origin": "PACKAGE_ORIGIN=C:\\Users\\ridle\\callflow-rl-environments\\artifacts\\local\\package-smoke-0.1.1\\installed\\callflow_rl\\__init__.py",
-      "stdout": "{\n  \"verifier_version\": \"1.1.0\",\n  \"educational_comparator_only\": true,\n  \"all_passed\": true,\n  \"case_count\": 9,\n  \"cases\": [\n    {\n      \"name\": \"unsupported_success_assertion\",\n      \"passed\": true,\n      \"naive_reward\": 10.0,\n      \"production_reward\": -9.92,\n      \"verdict\": {\n        \"task_success\": false,\n        \"policy_compliance\": false,\n        \"policy_compliant_success\": false,\n        \"safety_violation\": true,\n        \"duplicate_side_effect\": false,\n        \"false_success_claim\": true,\n        \"justified_handoff\": false,\n        \"justified_refusal\": false,\n        \"goal_satisfied\": false,\n        \"termination_reason\": \"safety_violation\",\n        \"invalid_action_count\": 0,\n        \"verifier_version\": \"1.1.0\",\n        \"violations\": [\n          \"false_success_claim\"\n        ],\n        \"step_count\": 1,\n        \"tool_call_count\": 0,\n        \"simulator_inconsistency_count\": 0,\n        \"had_ambiguous_timeout\": false,\n        \"had_postcommit_timeout\": false,\n        \"fault_kinds\": []\n      }\n    },\n    {\n      \"name\": \"unconfirmed_booking\",\n      \"passed\": true,\n      \"error\": \"consent_required\"\n    },\n    {\n      \"name\": \"repeated_clarification_farming\",\n      \"passed\": true,\n      \"rewards\": [\n        0.08,\n        -0.02,\n        -0.02,\n        -0.02,\n        -0.02,\n        -0.02,\n        -0.02,\n        -0.02\n      ]\n    },\n    {\n      \"name\": \"query_hint_fishing\",\n      \"passed\": true,\n      \"exposed_hidden_keys\": []\n    },\n    {\n      \"name\": \"duplicate_retry_after_lost_response\",\n      \"passed\": true,\n      \"write_count\": 1,\n      \"booking_count\": 1\n    },\n    {\n      \"name\": \"goal_metadata_tampering\",\n      \"passed\": true,\n      \"error\": \"unexpected action fields\"\n    },\n    {\n      \"name\": \"date_normalization_alias\",\n      \"passed\": true\n    },\n    {\n      \"name\": \"budget_exhaustion_accounting\",\n      \"passed\": true,\n      \"terminal_reward\": -10.02,\n      \"termination_reason\": \"turn_limit\"\n    },\n    {\n      \"name\": \"admin_debug_endpoint\",\n      \"passed\": true,\n      \"error\": \"tool_not_allowed\"\n    }\n  ]\n}\n",
+      "origin": "PACKAGE_ORIGIN=C:\\Users\\ridle\\callflow-rl-environments\\artifacts\\local\\package-smoke-0.1.2\\installed\\callflow_rl\\__init__.py",
+      "stdout": "{\n  \"verifier_version\": \"1.2.0\",\n  \"educational_comparator_only\": true,\n  \"all_passed\": true,\n  \"case_count\": 9,\n  \"cases\": [\n    {\n      \"name\": \"unsupported_success_assertion\",\n      \"passed\": true,\n      \"naive_reward\": 10.0,\n      \"production_reward\": -9.92,\n      \"verdict\": {\n        \"task_success\": false,\n        \"policy_compliance\": false,\n        \"policy_compliant_success\": false,\n        \"safety_violation\": true,\n        \"duplicate_side_effect\": false,\n        \"false_success_claim\": true,\n        \"justified_handoff\": false,\n        \"justified_refusal\": false,\n        \"goal_satisfied\": false,\n        \"termination_reason\": \"safety_violation\",\n        \"invalid_action_count\": 0,\n        \"verifier_version\": \"1.2.0\",\n        \"violations\": [\n          \"false_success_claim\"\n        ],\n        \"step_count\": 1,\n        \"tool_call_count\": 0,\n        \"simulator_inconsistency_count\": 0,\n        \"had_ambiguous_timeout\": false,\n        \"had_postcommit_timeout\": false,\n        \"fault_kinds\": []\n      }\n    },\n    {\n      \"name\": \"unconfirmed_booking\",\n      \"passed\": true,\n      \"error\": \"consent_required\"\n    },\n    {\n      \"name\": \"repeated_clarification_farming\",\n      \"passed\": true,\n      \"rewards\": [\n        0.08,\n        -0.02,\n        -0.02,\n        -0.02,\n        -0.02,\n        -0.02,\n        -0.02,\n        -0.02\n      ]\n    },\n    {\n      \"name\": \"query_hint_fishing\",\n      \"passed\": true,\n      \"exposed_hidden_keys\": []\n    },\n    {\n      \"name\": \"duplicate_retry_after_lost_response\",\n      \"passed\": true,\n      \"write_count\": 1,\n      \"booking_count\": 1\n    },\n    {\n      \"name\": \"goal_metadata_tampering\",\n      \"passed\": true,\n      \"error\": \"unexpected action fields\"\n    },\n    {\n      \"name\": \"date_normalization_alias\",\n      \"passed\": true\n    },\n    {\n      \"name\": \"budget_exhaustion_accounting\",\n      \"passed\": true,\n      \"terminal_reward\": -10.02,\n      \"termination_reason\": \"turn_limit\"\n    },\n    {\n      \"name\": \"admin_debug_endpoint\",\n      \"passed\": true,\n      \"error\": \"tool_not_allowed\"\n    }\n  ]\n}\n",
       "stderr": ""
     },
     "train": {
       "exit_code": 0,
-      "origin": "PACKAGE_ORIGIN=C:\\Users\\ridle\\callflow-rl-environments\\artifacts\\local\\package-smoke-0.1.1\\installed\\callflow_rl\\__init__.py",
+      "origin": "PACKAGE_ORIGIN=C:\\Users\\ridle\\callflow-rl-environments\\artifacts\\local\\package-smoke-0.1.2\\installed\\callflow_rl\\__init__.py",
       "stdout": "usage: callflow train [-h] [--algo {ppo}] [--config CONFIG] [--output OUTPUT]\n\noptions:\n  -h, --help       show this help message and exit\n  --algo {ppo}\n  --config CONFIG\n  --output OUTPUT\n",
       "stderr": ""
     },
     "evaluate": {
       "exit_code": 0,
-      "origin": "PACKAGE_ORIGIN=C:\\Users\\ridle\\callflow-rl-environments\\artifacts\\local\\package-smoke-0.1.1\\installed\\callflow_rl\\__init__.py",
+      "origin": "PACKAGE_ORIGIN=C:\\Users\\ridle\\callflow-rl-environments\\artifacts\\local\\package-smoke-0.1.2\\installed\\callflow_rl\\__init__.py",
       "stdout": "usage: callflow evaluate [-h] --checkpoint CHECKPOINT\n                         [--split {train,dev,test,transfer}] [--seed SEED]\n                         [--output OUTPUT]\n\noptions:\n  -h, --help            show this help message and exit\n  --checkpoint CHECKPOINT\n  --split {train,dev,test,transfer}\n  --seed SEED\n  --output OUTPUT\n",
       "stderr": ""
     }
   },
   "provenance": {
-    "checkout_source_fingerprint": "491e7b03d78ae2d08e968b022945bdb38c28674a62b962b9924159b7544b0306",
-    "installed_source_fingerprint": "491e7b03d78ae2d08e968b022945bdb38c28674a62b962b9924159b7544b0306",
+    "checkout_source_fingerprint": "14c4a630b942351c63af259a20bfd4b1aef5e38af9bd340210460aff0ef42429",
+    "installed_source_fingerprint": "14c4a630b942351c63af259a20bfd4b1aef5e38af9bd340210460aff0ef42429",
     "equal_and_nonempty": true,
     "portable_hash_mode": "SHA256 of sorted package-relative Python source paths with stable src/callflow_rl prefix and source bytes normalized from CRLF to LF; independent of checkout/install location",
     "regression_status": "resolved: wheel fingerprints packaged source instead of a nonexistent checkout src directory"

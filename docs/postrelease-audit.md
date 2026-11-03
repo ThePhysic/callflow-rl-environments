@@ -27,6 +27,11 @@ validated their original source/report/checkpoint fingerprints without finding a
 measurement or PPO-math defect. Historical training, checkpoints and prior
 evaluations are retained; updated source needs refreshed replay/evaluation data.
 
-Fresh Astra rereview and final evidence validation are pending. This document
-does not claim a general natural-language truth judge, production user realism,
-or that any finite test suite proves absence of all possible bugs.
+The frozen code at `4fd3e16` has a clean fresh Astra medium rereview. Local release
+verification passes **372 tests** (97 additional cases), lint/type checks, real
+CLI training/evaluation, five exact replays and a 200-episode run using four
+observed worker processes. Wheel/sdist data and external-directory CLI checks
+also pass. All 28 evaluations were refreshed with the original five checkpoints:
+there are no new outcome, resource or return differences against `0.1.1`.
+Registered manifests and checkpoint bytes are unchanged, and historical evidence
+remains archived. Final independent review of these refreshed artifacts is pending.

@@ -90,3 +90,11 @@ reviewer approved the candidate for private GitHub publication.
 
 This record is the only content changed after that clean verdict; implementation,
 checkpoints, evaluation files and measured claims remain unchanged.
+
+## Follow-up requested audit
+
+The preceding verdict and commit identifiers describe release `0.1.1`. The user's
+subsequent request for another audit found additional custom-scenario and worker
+failure cases. Corrections and new regression evidence for release `0.1.2` are
+recorded in [the follow-up audit](postrelease-audit.md); they do not retroactively
+claim those cases were covered by the original passing tests.

@@ -186,7 +186,7 @@ therefore uses the recorded policy seed and frozen suite order. Differences in
 random-policy scores across simulator versions are not evidence of learning or
 a causal benefit from the verifier correction.
 
-The current `c80e598` evaluation records 1,092 compared-field differences over
+The `0.1.1` evaluation at `c80e598` records 1,092 compared-field differences over
 318 episodes, including changed returns for all 318. Random held-out success is
 5/200 (2.5%, Wilson 95% interval 1.07–5.72%), compared with the historical 7/200.
 Its familiar/transfer counts are now 3/160 and 1/40. PPO task-success counts remain
@@ -202,3 +202,19 @@ use, while task success remains false. For example, seed 11 on
 safety, false claims, duplicate effects and violation labels do not change.
 These are explicitly accepted evaluation corrections, with outcome/return parity
 marked false; the historical curves and original training evidence are retained.
+
+## Follow-up audited release 0.1.2
+
+Source `4fd3e16` (verifier `1.2.0`) addresses the additional allocator, duplicate,
+historical interval, reporting, deadline, reset and infrastructure failures in
+[the follow-up audit](postrelease-audit.md). All five historical checkpoints were
+evaluated again on every frozen suite: 28 reports and 3,360 episodes. The audit
+also reran serial/process parity and refreshed exact replay/package evidence.
+
+There are zero new compared outcome, return or resource differences against the
+preceding `0.1.1` evaluation. The verifier-version labels, complete state hashes
+and measured wall-clock latencies change; the original 1,092 historical field
+differences remain disclosed. Scenario manifests and checkpoint bytes are
+unchanged. This validates the saved benchmark measurements while adding negative
+coverage for configurations and failures absent from that fixed corpus; it does
+not turn the unstable PPO results into a reliable learning improvement.

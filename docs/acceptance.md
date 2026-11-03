@@ -20,6 +20,12 @@ implementation and executable evidence; planned features are not implied to exis
 | Reproducibility and quality | Locked uv dependencies, type/lint checks, CI configuration, unit/integration/property tests, packaged fixture smoke check, no paid services/GPU needed |
 | Presentation | README diagram and recorded-trace figure, five representative traces, reward audit, learning plots, architecture/scenario/reward/experiment documentation |
 
+The follow-up `0.1.2` audit adds sparse-ID, duplicate-rescheduling, contradictory
+report, hard-deadline, reset-history, trusted-identity, real worker-crash and
+snapshot/resource-integrity regressions. See [the audit record](postrelease-audit.md)
+for reproduced failures and corrections. The frozen benchmark is retained rather
+than treating newly discovered failures as evidence the old tests covered them.
+
 Reproduction commands and their captured outputs are in
 [`artifacts/validation/quality.json`](../artifacts/validation/quality.json).
 Packaging checks are in
