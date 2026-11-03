@@ -1,14 +1,14 @@
 {
   "appropriate_resolution_count": 200,
   "episode_count": 200,
-  "episodes_per_second": 58.20032546203506,
+  "episodes_per_second": 52.06005543871275,
   "infrastructure_retries": 0,
   "justified_handoff_count": 0,
   "justified_refusal_count": 25,
   "observed_worker_processes": 4,
-  "p50_episode_seconds": 0.05029425000248011,
-  "p95_episode_seconds": 0.06239034500613343,
+  "p50_episode_seconds": 0.057335949983098544,
+  "p95_episode_seconds": 0.07376554501679486,
   "task_success_count": 175,
-  "wall_seconds_including_worker_startup": 3.436406900000293,
+  "wall_seconds_including_worker_startup": 3.841717000002973,
   "workers": 4
 }

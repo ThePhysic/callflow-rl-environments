@@ -49,13 +49,20 @@ of all Python source, covering uncommitted source as well as committed code.
 Reproduce on CPU after installing locked dependencies:
 
 ```powershell
-uv run python -m callflow_rl.evaluation.experiments
+uv run python -c "from callflow_rl.evaluation.experiments import run_experiments; run_experiments(output_dir='artifacts/local/retrained')"
 ```
 
-This writes `artifacts/experiments/registered_plan.json` before training and saves
+This writes a new `registered_plan.json` in the selected output directory before training and saves
 per-run checkpoints, development learning curves and final train/dev/test/transfer
 evaluations. `summary.json`, `RESULTS.md`, `learning_curve.png` and
 `baseline_comparison.png` are generated from actual run outputs.
+This command trains the current environment and can produce different curves
+after simulator/verifier corrections. To reproduce the historical registered
+experiment exactly, use an isolated checkout of commit `837af56`, its committed
+`uv.lock`, the recorded Python/dependency versions, and the original
+`configs/ppo.yaml`. The source-integrity artifact verifies that commit's source
+content against the registered training hash. Keep new runs in a separate output
+directory rather than overwriting the historical evidence.
 
 Every rate retains numerator and denominator. Wilson intervals describe scenario
 variation within the fixed benchmark. PPO aggregates bootstrap the three
@@ -79,6 +86,13 @@ Measured results and limitations are in
 must follow those measurements, including seeds that fail to generalize or learn.
 
 ## Observed learning and error analysis
+
+The following numbers and diagnostics describe the original training build
+`837af56` and its historical evaluations. They remain preserved even when later
+simulator/verifier corrections change the same checkpoints' current outcomes.
+The latest corrected evaluation is identified by environment and verifier
+versions in `artifacts/experiments/evaluation_release.json`; its current results
+are in `artifacts/experiments/RESULTS.md`.
 
 The registered shaped-reward runs are unstable. Seed 11 improves development task
 success from 0/80 initially to 20/80 at 32,768 interactions; seeds 29 and 47 finish
@@ -127,3 +141,64 @@ Archive/evaluation text checksums normalize CRLF to LF so Git's text-line-ending
 conversion does not invalidate them on a fresh clone. Binary checkpoint checksums
 use the original bytes; the archive manifest and release provenance declare that
 hashing scheme.
+
+## Corrected release evaluation
+
+The first Astra review identified missing reservation-to-consent bindings,
+incomplete verification of published policy, and cancellation users accepting
+irrelevant slot offers. Environment 0.1.1 and verifier 1.1 correct those behaviors.
+The original trainer, public action mask, saved weights, training plan and curves
+remain unchanged. Corrected simulator responses can change numeric observations,
+subsequent actions, resource use and verdicts for an unchanged checkpoint. Such
+changes are evaluation corrections and must not be described as additional RL
+learning.
+Subsequent adversarial checks also required historical consent revocation,
+immutable business-data anchors, capacity validation after every reconstructed
+write, and a final report that matches the final reservation row and follows its
+last write. Those fixes strengthen verification of intermediate effects and the
+final acknowledgement; their exact release source is recorded with evaluations.
+
+`examples/refresh_evaluations.py` archives the preceding release, stages fresh
+evaluations and reports per-scenario differences, including episode returns.
+A `--workers 3` refresh assigns each policy/split pair to an isolated process,
+with a fresh policy and one Torch thread. Suite order and the per-suite random
+policy seed are preserved; workers write distinct staged reports and the parent
+alone archives, compares and publishes. `--parallel-smoke --workers 3` checks
+serial/process parity on booking, cancellation, rescheduling and timeout cases,
+including final state hashes and all episode fields except wall-clock latency.
+Report latency and throughput depend on the recorded concurrent worker count and
+are not interpreted as a speedup against the historical serial evaluations.
+A strict run leaves published reports and their summary unchanged when differences
+exist. After inspecting those differences, the explicit command
+`uv run python examples/refresh_evaluations.py --reuse-candidate --accept-reviewed-outcome-changes`
+publishes the checksummed candidate that was reviewed. The original 28 reports
+remain under `original_evaluations/`; prior release reports and presentation are
+retained under `evaluation_history/`. Checkpoint and source hashes, verifier
+versions, every compared field and both original/current metrics are recorded in
+the release provenance. The earlier return-parity attestation refers to release
+`6b69d86`; it does not assert parity for subsequent corrected releases.
+
+The registered random baseline uses one local policy RNG stream for each fixed
+suite, while environments have isolated per-episode RNGs. Changed cancellation
+responses can change that policy's action choices and advance its random stream
+differently, affecting later episodes in the same suite. Reproducing that baseline
+therefore uses the recorded policy seed and frozen suite order. Differences in
+random-policy scores across simulator versions are not evidence of learning or
+a causal benefit from the verifier correction.
+
+The current `c80e598` evaluation records 1,092 compared-field differences over
+318 episodes, including changed returns for all 318. Random held-out success is
+5/200 (2.5%, Wilson 95% interval 1.07–5.72%), compared with the historical 7/200.
+Its familiar/transfer counts are now 3/160 and 1/40. PPO task-success counts remain
+unchanged for all five runs; the shaped three-seed held-out mean remains 8.33%
+with a coarse 0–25% seed-bootstrap interval. The heuristic still resolves all
+200 held-out requests appropriately (175 completions and 25 refusals).
+
+The PPO differences affect seeds 11 and 47 on the 61 cancellation instances in
+each run. Correct cancellation responses change their loop behavior and budget
+use, while task success remains false. For example, seed 11 on
+`cancel_direct:101700` changes from a 21-step/20-tool-call tool-limit failure to a
+40-step/19-tool-call turn-limit failure. Across all compared episodes, compliance,
+safety, false claims, duplicate effects and violation labels do not change.
+These are explicitly accepted evaluation corrections, with outcome/return parity
+marked false; the historical curves and original training evidence are retained.

@@ -144,7 +144,7 @@ same checkpoints; these corrections are not additional training.
 
 | Policy | Test task success | 95% Wilson interval |
 | --- | ---: | ---: |
-| Random, evaluation seed 2026 | 7/200 (3.5%) | 1.7–7.0% |
+| Random, evaluation seed 2026 | 5/200 (2.5%) | 1.1–5.7% |
 | Heuristic | 175/200 (87.5%) | 82.2–91.4% |
 | PPO, training seed 11 | 50/200 (25.0%) | 19.5–31.4% |
 | PPO, training seed 29 | 0/200 (0.0%) | 0.0–1.9% |
@@ -199,7 +199,8 @@ invariants, adversarial cases, learning math and worker isolation.
 
 Read the [scenario semantics](docs/scenarios.md), [ten golden cases](docs/golden-cases.md),
 [experiment protocol](docs/experiments.md), [release gates](docs/acceptance.md),
-and [development guide](CONTRIBUTING.md). The [original project brief](docs/project-brief.md)
+[adversarial review record](docs/adversarial-review.md), and
+[development guide](CONTRIBUTING.md). The [original project brief](docs/project-brief.md)
 is preserved as a design document, not a claim of measured achievements.
 
 Technical precedents: [Gymnasium's environment contract](https://gymnasium.farama.org/api/env/),

@@ -1,0 +1,35 @@
+{
+  "build_revision": "c80e5984653e7d7495982751aff2bdd481e10689",
+  "source_hash": "491e7b03d78ae2d08e968b022945bdb38c28674a62b962b9924159b7544b0306",
+  "workers_requested": 3,
+  "policies": [
+    {
+      "policy": "random",
+      "episodes": 8,
+      "episode_records_match": true
+    },
+    {
+      "policy": "heuristic",
+      "episodes": 8,
+      "episode_records_match": true
+    },
+    {
+      "policy": "ppo_shaped_seed_11",
+      "episodes": 8,
+      "episode_records_match": true
+    },
+    {
+      "policy": "ppo_shaped_seed_29",
+      "episodes": 8,
+      "episode_records_match": true
+    }
+  ],
+  "episodes_compared": 32,
+  "serial_parallel_parity": true,
+  "compared_records": "All fields including verdicts, rewards and state hashes, except wall-clock latency.",
+  "parallel_worker_pids": [
+    28272,
+    29380,
+    40044
+  ]
+}

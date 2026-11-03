@@ -62,3 +62,18 @@ reconciliation and shared-capacity cases. Public report flags depend only on
 observed operation results; private database truth remains in the verifier.
 
 Final review outcome will be recorded here after independent rereview.
+
+## Round 3 — code clean; final evidence review pending
+
+Source reviewed: `c80e5984653e7d7495982751aff2bdd481e10689`.
+The reviewer independently passed all 94 review-specific regressions and found
+no remaining code-level complaints. Local release verification passed 274 tests,
+type/lint checks, packaging, replay, real CLI training/evaluation and a 200-episode
+batch using four observed worker processes. An additional artifact-integrity
+regression verifies the published evaluation and checkpoint hashes.
+
+The corrected 28-report evaluation was staged, inspected and explicitly accepted.
+It preserves the historical weights and data, reports 1,092 changed fields across
+318 episodes, and marks outcome/return parity false. The random test score is
+5/200; PPO task scores remain 25%, 0%, 0%. Independent review of these final
+artifacts and disclosures is pending before publication.
