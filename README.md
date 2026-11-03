@@ -138,6 +138,9 @@ reward comparison, no-fault ablation and failure analysis are in the
 [generated experiment report](artifacts/experiments/RESULTS.md).
 The protocol fixes three independent PPO seeds and the final interaction budget
 before training. Single-seed comparisons are exploratory.
+The saved checkpoints and learning curves come from training build `837af56`.
+The table and comparison chart use the corrected release evaluation of those
+same checkpoints; these corrections are not additional training.
 
 | Policy | Test task success | 95% Wilson interval |
 | --- | ---: | ---: |
@@ -203,6 +206,6 @@ Technical precedents: [Gymnasium's environment contract](https://gymnasium.faram
 [Hypothesis stateful testing](https://hypothesis.readthedocs.io/en/latest/stateful.html),
 [PPO](https://arxiv.org/abs/1707.06347),
 [GAE](https://arxiv.org/abs/1506.02438), and
-[tau-bench](https://openreview.net/pdf?id=roNSXZpUDN).
+[tau-bench](https://arxiv.org/abs/2406.12045).
 Scenario semantics, implementation, reward audit and measured results in this
 repository are original project work. MIT licensed; repository access is private.

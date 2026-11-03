@@ -326,8 +326,11 @@ class CallFlowEnv:
                     and (task != "reschedule" or b["id"] == facts.get("booking_id"))
                 )
             ]
-            if candidates:
-                s["result_booking"] = deepcopy(candidates[0])
+            reconciled = deepcopy(candidates[0]) if candidates else None
+            if reconciled != s["result_booking"]:
+                s["reported"] = False
+            s["result_booking"] = reconciled
+            if reconciled:
                 s["pending_write"] = None
         elif name in WRITE_TOOLS:
             s["result_booking"] = deepcopy(result["booking"])
@@ -339,6 +342,11 @@ class CallFlowEnv:
     def _call_tool(self, action: dict[str, Any]) -> None:
         s = self.state
         name, args = action["tool"], action["args"]
+        if name in WRITE_TOOLS:
+            # Reports refer to a particular observed operation result. A new
+            # attempt must resolve its outcome before reusing that public flag.
+            s["reported"] = False
+            s["result_booking"] = None
         error = validate_tool(name, args)
         if error:
             self._invalid(error)
@@ -449,7 +457,11 @@ class CallFlowEnv:
                     "time": s["clock"],
                 }
             )
-            s["reported"] = bool(actual and observed and actual["status"] == inferred_status)
+            s["reported"] = bool(
+                observed
+                and s["result_booking"] == observed
+                and observed["status"] == inferred_status
+            )
         if re.search(r"\b(cannot|can't|unable|declined|no availability|refuse)\b", text, re.I):
             s["audit"].append(
                 {"kind": "refusal", "turn": s["turn"], "time": s["clock"], "text": text}

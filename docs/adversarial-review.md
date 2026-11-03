@@ -40,4 +40,25 @@ policy are now independently anchored to the scenario, with equivalent timestamp
 representations and legitimate availability/version changes covered positively.
 The expanded suite passes **262 tests**, with type and lint checks also passing.
 
+## Round 2 — changes required
+
+Source reviewed: `10c33460f9d708269a84ebcc4bc36dc54078f0e0`.
+The reviewer independently passed all 82 review-specific regressions and confirmed
+the original three findings were addressed. Two additional P1 gaps remained:
+
+- An observed report of the original active reservation could satisfy completion
+  after rescheduling because completion matched only reservation ID and status.
+  Completion must require a report of the final row after its final write;
+  earlier truthful reports remain harmless and insufficient.
+- Capacity was checked only in final rows. An intermediate move into an occupied
+  slot could be hidden by a later correct move. Capacity must hold after every
+  reconstructed write, with positive shared-capacity and intermediate-move cases.
+
+The interrupted checkpoint refreshes for intermediate candidates were never
+published. Implementation fixes now reconstruct capacity after every write and
+require full-row reporting after the final mutation. Twelve additional regressions
+cover both native report ordering and transient capacity, with positive retry,
+reconciliation and shared-capacity cases. Public report flags depend only on
+observed operation results; private database truth remains in the verifier.
+
 Final review outcome will be recorded here after independent rereview.

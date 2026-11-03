@@ -52,6 +52,12 @@ record reports `task_success`, `policy_compliance`, `policy_compliant_success`,
 no truthful report/END is partial completion. A justified refusal or handoff keeps
 the database unchanged and is not counted as a completed appointment.
 
+Capacity is checked after every reconstructed write as well as in the final
+database. A later move cannot erase an earlier overcapacity violation. Completion
+also requires a truthful observed report matching the full final reservation
+after that reservation's last write. A truthful report of the original booking
+remains valid history, but cannot stand in for reporting a later reschedule.
+
 ## Reward values in this release
 
 | Component | Value | Purpose |
