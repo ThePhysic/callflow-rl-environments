@@ -123,3 +123,7 @@ retain the original training build and all original evaluation JSON files, then
 refresh evaluations with the same checkpoints through
 `examples/refresh_evaluations.py`. The refresh compares per-scenario outcomes and
 records both source versions and checkpoint hashes in `evaluation_release.json`.
+Archive/evaluation text checksums normalize CRLF to LF so Git's text-line-ending
+conversion does not invalidate them on a fresh clone. Binary checkpoint checksums
+use the original bytes; the archive manifest and release provenance declare that
+hashing scheme.

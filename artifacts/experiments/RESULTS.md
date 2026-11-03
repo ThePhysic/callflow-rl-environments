@@ -17,3 +17,5 @@ The three-seed PPO aggregate, confidence intervals, per-scenario outcomes, failu
 Intervals over scenarios are Wilson intervals; intervals over PPO runs bootstrap three independent training-seed means and are coarse. These fixed benchmark results do not establish performance on real conversations or unrestricted natural language.
 
 The learned policy chooses bounded structured decisions from public numeric features. It does not train a language model. All fixtures and utterances are synthetic.
+
+Release evaluations use the same checkpoints after guard/metadata corrections. Original training and 28 evaluation files are retained. Per-scenario outcomes are unchanged; [evaluation_release.json](evaluation_release.json) records both source versions, checkpoint hashes and fault-exposure denominator comparisons.

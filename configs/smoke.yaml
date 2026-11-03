@@ -1,0 +1,12 @@
+# Routing/reproducibility smoke check only; 64 interactions are not a learning result.
+training_seeds: [13]
+total_steps: 64
+checkpoint_steps: [0, 64]
+rollout_steps: 64
+update_epochs: 1
+minibatch_size: 32
+hidden_size: 16
+torch_threads: 1
+evaluation_split: dev
+evaluation_seed: 2026
+reward_mode: shaped
