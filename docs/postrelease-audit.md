@@ -34,4 +34,14 @@ observed worker processes. Wheel/sdist data and external-directory CLI checks
 also pass. All 28 evaluations were refreshed with the original five checkpoints:
 there are no new outcome, resource or return differences against `0.1.1`.
 Registered manifests and checkpoint bytes are unchanged, and historical evidence
-remains archived. Final independent review of these refreshed artifacts is pending.
+remains archived.
+
+Fresh Astra medium issued a clean overall verdict for candidate
+`0e691c441f82c527e2b02bf702bf6a1fdd874534`, source `4fd3e16`: **no remaining
+material complaints established**. Independent final checks recomputed all 28
+summaries, compared all 3,360 current/prior episode records on the recorded keys
+with zero differences, verified report/checkpoint/archive/source fingerprints,
+and exactly replayed all five regenerated v2 traces. The reviewer inspected the
+372-test, packaging and serial/process parity evidence and approved the exact
+candidate for private publication. This documents the scope of the review rather
+than asserting that tests prove the absence of every possible future bug.
