@@ -172,6 +172,10 @@ def evaluate_policy(
             "policy_location_forbidden",
             "write_identity_changed",
             "invalid_write_transition",
+            "invalid_booking_time",
+            "slot_definition_changed",
+            "readonly_customer_change",
+            "readonly_policy_change",
         }
         record = {
             **verdict,

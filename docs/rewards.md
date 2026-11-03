@@ -12,6 +12,12 @@ ownership, service and valid operation/version transitions must agree. Published
 service/location/handoff policy is read from the initial scenario and checked
 independently of backend enforcement. Backend-regression tests supply internally
 consistent but unauthorized audited writes to ensure these checks stand alone.
+Actual offer-driven approval revocations are recorded explicitly, and audit order
+prevents older or future confirmations from authorizing a write. Read-only
+customer records, published policy and slot definitions are anchored to the
+scenario; changing a slot ID's time cannot turn a wrong-time booking into success.
+Equivalent timestamp representations denote the same instant, while legitimate
+slot-version and blocked-state changes remain supported.
 
 ## Success and side effects
 

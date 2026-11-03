@@ -18,6 +18,10 @@ from callflow_rl.scenarios import generate
         "policy_location_forbidden",
         "write_identity_changed",
         "invalid_write_transition",
+        "invalid_booking_time",
+        "slot_definition_changed",
+        "readonly_customer_change",
+        "readonly_policy_change",
     ],
 )
 def test_evaluator_counts_independent_verifier_side_effects(monkeypatch, violation):

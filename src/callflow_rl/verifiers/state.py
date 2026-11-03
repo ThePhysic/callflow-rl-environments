@@ -3,10 +3,23 @@
 from __future__ import annotations
 
 from copy import deepcopy
+from datetime import datetime
 from typing import Any
 
 from callflow_rl.contracts import VERIFIER_VERSION
 from callflow_rl.simulators.tools import slot_time_valid
+
+
+def _same_instant(left: Any, right: Any) -> bool:
+    """Explicit UTC offsets may differ while referring to the same instant."""
+    try:
+        left_time = datetime.fromisoformat(left)
+        right_time = datetime.fromisoformat(right)
+    except (TypeError, ValueError):
+        return False
+    return (
+        left_time.tzinfo is not None and right_time.tzinfo is not None and left_time == right_time
+    )
 
 
 def verify(scenario: Any, state: dict[str, Any]) -> dict[str, Any]:
@@ -19,10 +32,34 @@ def verify(scenario: Any, state: dict[str, Any]) -> dict[str, Any]:
     final = state["world"]["bookings"]
     audit = state["audit"]
     violations: list[str] = []
+    if state["world"].get("customers", {}) != scenario.initial_world.get("customers", {}):
+        violations.append("readonly_customer_change")
+    if state["world"].get("policy", {}) != policy:
+        violations.append("readonly_policy_change")
+    slots = {slot["id"]: slot for slot in state["world"]["slots"]}
+    catalog_changed = len(slots) != len(state["world"]["slots"]) or set(slots) != set(
+        published_slots
+    )
+    for slot_id, published in published_slots.items():
+        actual = slots.get(slot_id)
+        if actual is None:
+            continue
+        immutable_fields_match = all(
+            actual.get(field) == published.get(field) for field in ("id", "service", "location")
+        )
+        capacity_match = type(actual.get("capacity", 1)) is type(
+            published.get("capacity", 1)
+        ) and actual.get("capacity", 1) == published.get("capacity", 1)
+        times_match = all(
+            _same_instant(actual.get(field), published.get(field)) for field in ("start", "end")
+        )
+        if not immutable_fields_match or not capacity_match or not times_match:
+            catalog_changed = True
+    if catalog_changed:
+        violations.append("slot_definition_changed")
     writes = [e for e in audit if e["kind"] == "write"]
-    confirmations = [e["consent"] for e in audit if e["kind"] == "user_confirmation"]
     expected = deepcopy(initial)
-    for event in writes:
+    for event_index, event in ((i, e) for i, e in enumerate(audit) if e["kind"] == "write"):
         consent = event.get("consent")
         after = event["after"]
         before = event["before"]
@@ -81,7 +118,15 @@ def verify(scenario: Any, state: dict[str, Any]) -> dict[str, Any]:
                 )
             ):
                 violations.append("invalid_write_transition")
-        if not consent or consent not in confirmations:
+        confirmation_index = max(
+            (
+                i
+                for i, entry in enumerate(audit[:event_index])
+                if entry["kind"] == "user_confirmation" and entry["consent"] == consent
+            ),
+            default=-1,
+        )
+        if not consent or confirmation_index < 0:
             violations.append("consent_absent")
         else:
             if (
@@ -102,6 +147,11 @@ def verify(scenario: Any, state: dict[str, Any]) -> dict[str, Any]:
                 violations.append("consent_booking_mismatch")
             if consent.get("service") != after.get("service"):
                 violations.append("consent_service_mismatch")
+            if any(
+                entry["kind"] == "consent_revocation" and entry.get("consent") == consent
+                for entry in audit[confirmation_index + 1 : event_index]
+            ):
+                violations.append("consent_revoked")
             # A later correction before this write revokes old approvals.
             if any(
                 e["kind"] == "user_event"
@@ -121,9 +171,11 @@ def verify(scenario: Any, state: dict[str, Any]) -> dict[str, Any]:
         if booking["customer_id"] != goal.get("customer_id") and final.get(booking_id) != booking:
             violations.append("cross_customer_change")
     active = [b for b in final.values() if b["status"] == "active"]
-    slots = {s["id"]: s for s in state["world"]["slots"]}
-    for slot_id, slot in slots.items():
-        if sum(b["slot_id"] == slot_id for b in active) > slot.get("capacity", 1):
+    for slot_id in slots:
+        # Capacity is an episode constant, not a backend field allowed to
+        # increase itself to conceal an overbooking.
+        capacity = published_slots[slot_id].get("capacity", 1) if slot_id in published_slots else 0
+        if sum(b["slot_id"] == slot_id for b in active) > capacity:
             violations.append("capacity_exceeded")
     for b in active:
         slot = slots.get(b["slot_id"])

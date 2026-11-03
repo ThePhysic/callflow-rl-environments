@@ -37,6 +37,20 @@ class UserSimulator:
         prefix = self.rng.choice(["For clarity", "To be precise", "Here is that detail"])
         self.say(f"{prefix}, {field} is {truth[field]}.")
 
+    def _revoke_consent(self, reason: str) -> None:
+        previous = self.state["consent"]
+        if previous is not None:
+            self.state["audit"].append(
+                {
+                    "kind": "consent_revocation",
+                    "consent": deepcopy(previous),
+                    "reason": reason,
+                    "turn": self.state["turn"],
+                    "time": self.state["clock"],
+                }
+            )
+        self.state["consent"] = None
+
     def offer(self, slot_id: str) -> None:
         truth = self.state["user_truth"]
         if truth.get("task", "book") == "cancel":
@@ -45,7 +59,7 @@ class UserSimulator:
             # of the cancellation itself, and require renewed authorization.
             self.state["offered_slot"] = None
             self.state["offer_accepted"] = False
-            self.state["consent"] = None
+            self._revoke_consent("irrelevant_cancel_offer")
             self.say("My request is to cancel my existing reservation. I do not want a new slot.")
             return
         slot = next((s for s in self.state["slots"] if s["id"] == slot_id), None)
@@ -64,7 +78,7 @@ class UserSimulator:
         )
         self.state["offered_slot"] = slot_id
         self.state["offer_accepted"] = admissible
-        self.state["consent"] = None
+        self._revoke_consent("new_offer")
         if admissible:
             self.say(f"That option, {slot_id}, works. Please confirm the details with me.")
         else:

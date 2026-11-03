@@ -150,3 +150,67 @@ def test_declined_booking_offer_and_corrected_reschedule_remain_consistent():
     corrected.reset(seed=415)
     assert complete(corrected)["task_success"]
     assert corrected.verdict()["simulator_inconsistency_count"] == 0
+
+
+@pytest.mark.parametrize("archetype", ["book_direct", "reschedule_direct", "cancel_direct"])
+def test_offer_records_the_exact_consent_it_revokes(archetype):
+    env = CallFlowEnv(generate(archetype, 417))
+    env.reset(seed=417)
+    policy = HeuristicPolicy()
+    while not env.state["consent"]:
+        env.step(policy.act(env.observation()))
+    previous = deepcopy(env.state["consent"])
+    original = deepcopy(env.state["world"]["bookings"])
+    slot_id = available(env) if archetype == "cancel_direct" else env.state["offered_slot"]
+    env.step({"type": "OFFER_SLOT", "slot_id": slot_id})
+    revoked = [e for e in env.state["audit"] if e["kind"] == "consent_revocation"]
+    assert len(revoked) == 1
+    assert revoked[0]["consent"] == previous
+    assert revoked[0]["consent"] is not previous
+    assert revoked[0]["reason"] == (
+        "irrelevant_cancel_offer" if archetype == "cancel_direct" else "new_offer"
+    )
+    assert revoked[0]["turn"] == env.state["turn"]
+    assert revoked[0]["time"] == env.state["clock"]
+    assert env.state["consent"] is None
+    assert env.state["world"]["bookings"] == original
+    assert complete(env)["task_success"]
+
+
+@pytest.mark.parametrize("archetype", ["book_direct", "reschedule_direct"])
+def test_unobserved_offer_preserves_consent_without_fabricating_a_revocation(archetype):
+    env = CallFlowEnv(generate(archetype, 418))
+    env.reset(seed=418)
+    policy = HeuristicPolicy()
+    while not env.state["consent"]:
+        env.step(policy.act(env.observation()))
+    previous = deepcopy(env.state["consent"])
+    env.step({"type": "OFFER_SLOT", "slot_id": "never-observed"})
+    assert env.state["consent"] == previous
+    assert not any(e["kind"] == "consent_revocation" for e in env.state["audit"])
+    assert complete(env)["task_success"]
+
+
+def test_declined_observed_offer_still_audits_revocation_of_previous_approval():
+    env = CallFlowEnv(generate("book_direct", 419))
+    env.reset(seed=419)
+    policy = HeuristicPolicy()
+    while not env.state["consent"]:
+        env.step(policy.act(env.observation()))
+    previous = deepcopy(env.state["consent"])
+    unacceptable = next(s["id"] for s in env.state["slots"] if s["id"] != previous["slot_id"])
+    env.step({"type": "OFFER_SLOT", "slot_id": unacceptable})
+    assert not env.state["offer_accepted"]
+    assert env.state["consent"] is None
+    revoked = [e for e in env.state["audit"] if e["kind"] == "consent_revocation"]
+    assert revoked[0]["consent"] == previous
+    assert revoked[0]["reason"] == "new_offer"
+
+
+@pytest.mark.parametrize("archetype", ["book_direct", "cancel_direct"])
+def test_offer_without_prior_approval_does_not_create_a_revocation_event(archetype):
+    env = CallFlowEnv(generate(archetype, 420))
+    env.reset(seed=420)
+    env.step({"type": "OFFER_SLOT", "slot_id": available(env)})
+    assert env.state["consent"] is None
+    assert not any(e["kind"] == "consent_revocation" for e in env.state["audit"])

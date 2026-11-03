@@ -6,9 +6,11 @@ tool itself did not reject it and the desired final reservation is correct.
 """
 
 from copy import deepcopy
+from datetime import datetime, timedelta, timezone
 
 import pytest
 
+from callflow_rl.envs.gym_env import action_from_observation
 from callflow_rl.envs.native import CallFlowEnv
 from callflow_rl.policies import HeuristicPolicy
 from callflow_rl.scenarios import generate
@@ -134,6 +136,7 @@ def test_published_booking_policy_is_checked_even_with_real_approval_and_valid_g
 def test_cancellation_remains_allowed_when_service_or_location_is_no_longer_bookable():
     scenario, state = _completed("cancel")
     scenario.initial_world["policy"].update(permitted_services=[], permitted_locations=[])
+    state["world"]["policy"] = deepcopy(scenario.initial_world["policy"])
     result = verify(scenario, state)
     # This matches SchedulingService: booking restrictions do not prohibit
     # cancelling an existing reservation; an explicit handoff rule still does.
@@ -218,3 +221,161 @@ def test_confirmed_intermediate_move_is_not_constrained_by_final_goal_slot():
     result = verify(scenario, state)
     assert intermediate["after"]["slot_id"] not in scenario.private_goal["allowed_slots"]
     assert result["task_success"], result
+
+
+def _confirmed_then_offered_again(task):
+    env = CallFlowEnv(generate(f"{task}_direct", 482))
+    observation, _ = env.reset(seed=482)
+    indices = [4]
+    if task in {"reschedule", "cancel"}:
+        indices.append(11)
+    if task != "cancel":
+        indices += [5, 6]
+    indices.append(9)
+    for index in indices:
+        observation, *_ = env.step(action_from_observation(index, observation))
+    prior_consent = deepcopy(env.state["consent"])
+    assert prior_consent is not None
+    write_action = action_from_observation(10, observation)
+    observation, *_ = env.step(
+        {
+            "type": "OFFER_SLOT",
+            "slot_id": env.scenario.initial_world["slots"][0]["id"],
+        }
+    )
+    assert observation["consent"] is None
+    revocation = next(e for e in reversed(env.state["audit"]) if e["kind"] == "consent_revocation")
+    assert revocation["consent"] == prior_consent
+    return env, observation, prior_consent, write_action
+
+
+@pytest.mark.parametrize("task", ["book", "reschedule", "cancel"])
+def test_faulty_backend_cannot_reuse_consent_revoked_by_an_intervening_offer(task):
+    env, _, prior_consent, write_action = _confirmed_then_offered_again(task)
+    # Simulate a backend incorrectly retaining the old authorization. A real
+    # database effect and a real old confirmation must still fail verification.
+    env.state["consent"] = prior_consent
+    _, _, terminated, _, info = env.step(write_action)
+    assert terminated
+    assert any(e["kind"] == "write" for e in env.state["audit"])
+    assert "consent_revoked" in info["verdict"]["violations"]
+    assert not info["verdict"]["policy_compliance"]
+
+
+@pytest.mark.parametrize("task", ["book", "reschedule", "cancel"])
+def test_reconfirmation_after_offer_revocation_authorizes_the_new_write(task):
+    env, observation, prior_consent, _ = _confirmed_then_offered_again(task)
+    observation, *_ = env.step(action_from_observation(9, observation))
+    assert observation["consent"] is not None
+    assert observation["consent"] != prior_consent
+    for index in [10, 12, 13]:
+        observation, *_ = env.step(action_from_observation(index, observation))
+    assert env.verdict()["task_success"], env.verdict()
+
+
+def test_a_future_confirmation_cannot_retroactively_authorize_a_write():
+    scenario, state = _completed("book")
+    index = next(i for i, e in enumerate(state["audit"]) if e["kind"] == "user_confirmation")
+    confirmation = state["audit"].pop(index)
+    state["audit"].append(confirmation)
+    result = verify(scenario, state)
+    assert "consent_absent" in result["violations"]
+    assert not result["task_success"]
+
+
+@pytest.mark.parametrize("field", ["start", "end", "capacity", "service", "location"])
+def test_mutating_an_immutable_calendar_definition_cannot_preserve_success(field):
+    scenario, state = _completed("book")
+    booking = next(iter(state["world"]["bookings"].values()))
+    slot = next(s for s in state["world"]["slots"] if s["id"] == booking["slot_id"])
+    if field in {"start", "end"}:
+        # Move the entire interval so both endpoints remain valid and the
+        # booking row/slot ID still look correct to a row-only verifier.
+        for endpoint in ("start", "end"):
+            slot[endpoint] = (
+                datetime.fromisoformat(slot[endpoint]) + timedelta(days=1)
+            ).isoformat()
+    elif field == "capacity":
+        slot[field] += 1
+    else:
+        slot[field] = "corrupted-definition"
+    result = verify(scenario, state)
+    assert "slot_definition_changed" in result["violations"]
+    assert not result["task_success"]
+    assert not result["policy_compliance"]
+
+
+@pytest.mark.parametrize("mutation", ["add", "remove", "duplicate"])
+def test_calendar_catalog_is_read_only_even_for_unoccupied_slots(mutation):
+    scenario, state = _completed("book")
+    slots = state["world"]["slots"]
+    if mutation == "remove":
+        slots.pop()
+    else:
+        additional = deepcopy(slots[-1])
+        if mutation == "add":
+            additional["id"] = "unpublished-slot"
+        slots.append(additional)
+    result = verify(scenario, state)
+    assert "slot_definition_changed" in result["violations"]
+    assert not result["task_success"]
+
+
+@pytest.mark.parametrize("task", ["book", "reschedule", "cancel"])
+def test_read_only_customer_records_cannot_be_changed_as_an_extra_side_effect(task):
+    scenario, state = _completed(task)
+    other = next(
+        cid for cid in state["world"]["customers"] if cid != scenario.private_goal["customer_id"]
+    )
+    state["world"]["customers"][other]["name"] = "Corrupted by backend"
+    result = verify(scenario, state)
+    assert "readonly_customer_change" in result["violations"]
+    assert not result["task_success"]
+    assert result["safety_violation"]
+
+
+def test_changing_only_the_backend_policy_is_an_unauthorized_effect():
+    scenario, state = _completed("book")
+    state["world"]["policy"]["permitted_services"] = []
+    result = verify(scenario, state)
+    assert "readonly_policy_change" in result["violations"]
+    assert not result["task_success"]
+
+
+def test_fault_mutable_versions_and_blocked_flags_do_not_change_slot_identity():
+    scenario, state = _completed("book")
+    for slot in state["world"]["slots"]:
+        slot["version"] += 17
+        slot["blocked"] = not slot["blocked"]
+    result = verify(scenario, state)
+    assert result["task_success"], result
+
+
+def test_equivalent_explicit_offset_representation_preserves_the_accepted_instant():
+    scenario, state = _completed("book")
+    for slot in state["world"]["slots"]:
+        for endpoint in ("start", "end"):
+            slot[endpoint] = (
+                datetime.fromisoformat(slot[endpoint]).astimezone(timezone.utc).isoformat()
+            )
+    result = verify(scenario, state)
+    assert result["task_success"], result
+
+
+@pytest.mark.parametrize(
+    "archetype, split",
+    [
+        ("book_dst_fold", "test"),
+        ("transfer_shared_capacity", "transfer"),
+    ],
+)
+def test_explicit_dst_instants_and_initial_shared_capacity_remain_valid(archetype, split):
+    scenario = generate(archetype, 482, split=split)
+    env = CallFlowEnv(scenario)
+    observation, _ = env.reset(seed=482)
+    policy = HeuristicPolicy()
+    for _ in range(scenario.max_turns):
+        observation, _, terminated, truncated, _ = env.step(policy.act(observation))
+        if terminated or truncated:
+            break
+    assert env.verdict()["task_success"], env.verdict()
