@@ -144,10 +144,12 @@ def generate(archetype: str, seed: int, split: str = "train") -> ScenarioSpec:
     if archetype == "book_correction_location":
         slots[1]["location"] = other_location
         allowed = [ids[1]]
-        events.extend([
-            {"turn": 3, "type": "correction", "field": "location", "value": other_location},
-            {"turn": 3, "type": "correction", "field": "window", "value": allowed},
-        ])
+        events.extend(
+            [
+                {"turn": 3, "type": "correction", "field": "location", "value": other_location},
+                {"turn": 3, "type": "correction", "field": "window", "value": allowed},
+            ]
+        )
     if archetype == "book_duplicate_request":
         events.append({"turn": 6, "type": "repeat"})
     if archetype == "book_dst_fold":
@@ -197,7 +199,9 @@ def generate(archetype: str, seed: int, split: str = "train") -> ScenarioSpec:
         "task": task,
         "customer_id": customer_id,
         "service": service,
-        "allowed_locations": [other_location if archetype == "book_correction_location" else location],
+        "allowed_locations": [
+            other_location if archetype == "book_correction_location" else location
+        ],
         "allowed_slots": list(allowed),
         "outcome": outcome,
     }
@@ -223,7 +227,12 @@ def generate(archetype: str, seed: int, split: str = "train") -> ScenarioSpec:
         seed=seed,
         public_task=public_task,
         private_goal=goal,
-        initial_world={"customers": customers, "slots": slots, "bookings": bookings, "policy": policy},
+        initial_world={
+            "customers": customers,
+            "slots": slots,
+            "bookings": bookings,
+            "policy": policy,
+        },
         user=user,
         faults=faults,
         events=events,

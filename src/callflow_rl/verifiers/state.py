@@ -6,6 +6,7 @@ from copy import deepcopy
 from typing import Any
 
 from callflow_rl.contracts import VERIFIER_VERSION
+from callflow_rl.simulators.tools import slot_time_valid
 
 
 def verify(scenario: Any, state: dict[str, Any]) -> dict[str, Any]:
@@ -58,6 +59,8 @@ def verify(scenario: Any, state: dict[str, Any]) -> dict[str, Any]:
         slot = slots.get(b["slot_id"])
         if slot is None or b["service"] != slot["service"] or b["location"] != slot["location"]:
             violations.append("booking_slot_inconsistent")
+        if slot is not None and not slot_time_valid(slot):
+            violations.append("invalid_booking_time")
     new = [b for bid, b in final.items() if bid not in initial]
     task = goal.get("task", "book")
     duplicate = len(new) > (1 if task == "book" else 0)
@@ -94,7 +97,9 @@ def verify(scenario: Any, state: dict[str, Any]) -> dict[str, Any]:
     else:
         target = final.get(goal.get("booking_id"))
     database_met = bool(target and target["customer_id"] == goal.get("customer_id"))
-    if task == "cancel":
+    if target is None:
+        database_met = False
+    elif task == "cancel":
         database_met = database_met and target["status"] == "cancelled"
     else:
         database_met = bool(

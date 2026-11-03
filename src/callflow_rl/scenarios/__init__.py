@@ -13,8 +13,15 @@ from .catalog import ARCHETYPES, SPLITS, SUITE_VERSION, archetypes_for, challeng
 from .generator import generate
 
 __all__ = [
-    "ARCHETYPES", "SPLITS", "SUITE_VERSION", "archetypes_for", "challenge_slices",
-    "generate", "load_suite", "manifest_hash", "suite_metadata",
+    "ARCHETYPES",
+    "SPLITS",
+    "SUITE_VERSION",
+    "archetypes_for",
+    "challenge_slices",
+    "generate",
+    "load_suite",
+    "manifest_hash",
+    "suite_metadata",
 ]
 
 
@@ -35,7 +42,9 @@ def _manifest_bytes(split: str) -> bytes:
 
 def load_suite(split: str) -> list[ScenarioSpec]:
     """Return fresh instances from the frozen, hashed manifest; no shared state."""
-    result = [ScenarioSpec.from_dict(json.loads(line)) for line in _manifest_bytes(split).splitlines()]
+    result = [
+        ScenarioSpec.from_dict(json.loads(line)) for line in _manifest_bytes(split).splitlines()
+    ]
     metadata = suite_metadata()["splits"][split]
     if len(result) != metadata["count"]:
         raise ValueError(f"{split} manifest count mismatch")

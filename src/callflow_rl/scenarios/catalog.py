@@ -33,7 +33,9 @@ ARCHETYPES: dict[str, dict[str, Any]] = {
     "book_ambiguous_date": _entry("dev", "book", "relative_date_clarification", "ambiguous"),
     "book_rejected_arguments": _entry("dev", "book", "transient_argument_rejection", "fault"),
     "reschedule_no_capacity": _entry("dev", "reschedule", "retain_original_if_full", "policy"),
-    "cancel_timeout_after": _entry("dev", "cancel", "ambiguous_cancellation", "fault", "timeout_after"),
+    "cancel_timeout_after": _entry(
+        "dev", "cancel", "ambiguous_cancellation", "fault", "timeout_after"
+    ),
     "book_correction_time": _entry("test", "book", "accepted_window_correction", "ambiguous"),
     "book_correction_location": _entry("test", "book", "accepted_location_correction", "ambiguous"),
     "book_stale_read": _entry("test", "book", "stale_version_read", "fault"),
@@ -41,7 +43,9 @@ ARCHETYPES: dict[str, dict[str, Any]] = {
         "test", "book", "duplicate_request_after_lost_reply", "fault", "timeout_after"
     ),
     "reschedule_correction": _entry("test", "reschedule", "move_window_correction", "ambiguous"),
-    "cancel_interrupted": _entry("test", "cancel", "late_cancellation_interruption", "interruption"),
+    "cancel_interrupted": _entry(
+        "test", "cancel", "late_cancellation_interruption", "interruption"
+    ),
     "book_dst_fold": _entry("test", "book", "dst_offset_disambiguation", "ambiguous", "timezone"),
     "book_policy_refusal": _entry("test", "book", "restricted_service_refusal", "policy"),
     "transfer_mixed_calendar": _entry(

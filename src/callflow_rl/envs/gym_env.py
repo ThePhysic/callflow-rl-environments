@@ -99,10 +99,12 @@ def action_from_observation(index: int, observation: dict[str, Any]) -> dict[str
             return deepcopy(o["pending_write"])
         args = {"customer_id": customer_id, "idempotency_key": o.get("request_key", "request")}
         if task in {"reschedule", "cancel"}:
-            booking = next((b for b in o.get("bookings", []) if b["id"] == booking_id), {})
-            args.update(booking_id=booking_id, booking_version=booking.get("version", 0))
+            current_booking: dict[str, Any] = next(
+                (b for b in o.get("bookings", []) if b["id"] == booking_id), {}
+            )
+            args.update(booking_id=booking_id, booking_version=current_booking.get("version", 0))
         if task != "cancel":
-            slot = next((s for s in slots if s["id"] == slot_id), {})
+            slot: dict[str, Any] = next((s for s in slots if s["id"] == slot_id), {})
             args.update(slot_id=slot_id, expected_version=slot.get("version", 0))
         return {
             "type": "CALL_TOOL",
@@ -228,7 +230,7 @@ def encode(observation: dict[str, Any]) -> np.ndarray:
 
 
 class CallFlowGymEnv(gym.Env[np.ndarray, int]):
-    metadata = {"render_modes": []}
+    metadata: dict[str, Any] = {"render_modes": []}
 
     def __init__(self, scenario: ScenarioSpec | None = None, reward_mode: str = "shaped") -> None:
         super().__init__()

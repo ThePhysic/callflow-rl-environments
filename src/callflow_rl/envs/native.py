@@ -182,7 +182,7 @@ class CallFlowEnv:
             "available_tools": TOOL_SCHEMAS,
             "history": s["history"],
             "clock": s["clock"],
-            "request_key": f"request-{self._seed}-{s['user_revision']}",
+            "request_key": f"request-{s['user_revision']}",
             "remaining": {
                 "turns": max(0, self.scenario.max_turns - s["turn"]),
                 "time": max(0.0, self.scenario.max_time - s["clock"]),
@@ -199,6 +199,7 @@ class CallFlowEnv:
             "step_count": self.state["turn"],
             "tool_call_count": self.state["tool_calls"],
             "virtual_time": self.state["clock"],
+            "reward_explanation": deepcopy(self.state.get("reward_explanation", {})),
         }
 
     def verdict(self) -> dict[str, Any]:
@@ -331,6 +332,7 @@ class CallFlowEnv:
             )
         kind = fault["kind"] if fault else None
         service = SchedulingService(s)
+        result: dict[str, Any]
         if kind == "timeout_before":
             result = {"ok": False, "error": "timeout", "ambiguous": True}
         elif kind == "reject":
@@ -489,9 +491,17 @@ class CallFlowEnv:
             if limit:
                 s["truncated"] = True
                 s["termination_reason"] = limit
-        reward = -0.02 - (
-            0.02 if isinstance(action, dict) and action.get("type") == "CALL_TOOL" else 0.0
-        )
+        components = {
+            "step_cost": -0.02,
+            "tool_cost": -(
+                0.02 if isinstance(action, dict) and action.get("type") == "CALL_TOOL" else 0.0
+            ),
+            "invalid_cost": -0.1 if error else 0.0,
+            "shaping": 0.0,
+            "terminal": 0.0,
+        }
+        milestones_awarded: list[str] = []
+        reward = components["step_cost"] + components["tool_cost"]
         if error:
             reward -= 0.1
         if self.reward_mode == "shaped":
@@ -504,15 +514,19 @@ class CallFlowEnv:
             for milestone, satisfied in progress.items():
                 if satisfied and milestone not in s["milestones"]:
                     s["milestones"].append(milestone)
+                    milestones_awarded.append(milestone)
+                    components["shaping"] += 0.1
                     reward += 0.1
         if s["terminated"] or s["truncated"]:
             verdict = self.verdict()
-            reward += (
+            components["terminal"] = (
                 10.0
                 if verdict["task_success"]
                 else 3.0
                 if verdict["justified_handoff"] or verdict["justified_refusal"]
                 else -10.0
             )
+            reward += components["terminal"]
+        s["reward_explanation"] = {"components": components, "milestones": milestones_awarded}
         s["reward_total"] += reward
         return self.observation(), reward, s["terminated"], s["truncated"], self._info()

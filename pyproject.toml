@@ -33,6 +33,7 @@ python_version = "3.12"
 ignore_missing_imports = true
 check_untyped_defs = true
 files = ["src/callflow_rl"]
+follow_imports = "skip"
 
 [[tool.mypy.overrides]]
 module = ["torch.*", "gymnasium.*", "numpy.*", "matplotlib.*", "pyarrow.*"]

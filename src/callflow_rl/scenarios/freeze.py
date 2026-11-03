@@ -24,8 +24,7 @@ def build_payloads() -> dict[str, bytes]:
                 seed = SEED_BASE[split] + 100 * family_index + instance
                 records.append(generate(archetype, seed, split).to_dict())
         payload = "".join(
-            json.dumps(record, sort_keys=True, separators=(",", ":")) + "\n"
-            for record in records
+            json.dumps(record, sort_keys=True, separators=(",", ":")) + "\n" for record in records
         ).encode("utf-8")
         payloads[f"{split}.jsonl"] = payload
         index["splits"][split] = {  # type: ignore[index]
@@ -42,7 +41,9 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     mode = parser.add_mutually_exclusive_group(required=True)
     mode.add_argument("--check", action="store_true", help="verify generator matches frozen files")
-    mode.add_argument("--write", action="store_true", help="explicitly rewrite all suite definitions")
+    mode.add_argument(
+        "--write", action="store_true", help="explicitly rewrite all suite definitions"
+    )
     args = parser.parse_args()
     target = Path(__file__).parent / "manifests"
     for name, payload in build_payloads().items():
