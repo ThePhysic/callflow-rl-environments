@@ -1,0 +1,23 @@
+name: quality
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  checks:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.13.5"
+      - run: uv sync --frozen --python 3.13
+      - run: uv run --no-sync ruff check .
+      - run: uv run --no-sync ruff format --check .
+      - run: uv run --no-sync mypy
+      - run: uv run --no-sync pytest -q
+      - run: uv run --no-sync callflow validate --suite core
+      - run: uv run --no-sync callflow audit-rewards --suite adversarial
+      - run: uv run --no-sync callflow rollout --policy heuristic --split dev --episodes 200 --workers 4 --seed 42
