@@ -1,0 +1,12 @@
+[
+  {"archetype":"book_direct","split":"train","seed":11001,"expected":"completed","obligation":"Exactly one confirmed booking and truthful final status."},
+  {"archetype":"book_all_missing","split":"train","seed":11002,"expected":"completed","obligation":"Clarify identity, service, location and window before commit."},
+  {"archetype":"book_timeout_after","split":"train","seed":11003,"expected":"completed","obligation":"Inspect state or retry idempotently after an ambiguous commit."},
+  {"archetype":"book_conflict","split":"train","seed":11004,"expected":"completed","obligation":"Refresh stale candidate and confirm an admissible alternative."},
+  {"archetype":"book_no_availability","split":"train","seed":11005,"expected":"handoff","obligation":"Handoff without fabricating a reservation."},
+  {"archetype":"book_decline","split":"train","seed":11006,"expected":"refused","obligation":"Respect declined offers, preserve database and communicate refusal."},
+  {"archetype":"reschedule_direct","split":"train","seed":11007,"expected":"completed","obligation":"Move the same reservation atomically; retain identity and count."},
+  {"archetype":"cancel_direct","split":"train","seed":11008,"expected":"completed","obligation":"Authenticate, confirm intent and cancel exactly the identified reservation."},
+  {"archetype":"book_correction_time","split":"test","seed":11009,"expected":"completed","obligation":"Discard an obsolete offer and honor the corrected window."},
+  {"archetype":"book_dst_fold","split":"test","seed":11010,"expected":"completed","obligation":"Distinguish the two UTC offsets of a repeated local clock time."}
+]

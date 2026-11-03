@@ -18,3 +18,6 @@ reward_mode: shaped
 torch_threads: 1
 evaluation_split: dev
 evaluation_seed: 2026
+# Public workflow scaffolding is identical for random and PPO: no hidden mask.
+# END requires an observed report/refusal; HANDOFF needs public evidence.
+public_action_mask: public-workflow-v1
