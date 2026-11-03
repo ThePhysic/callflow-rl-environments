@@ -158,7 +158,7 @@ def _worker(task: dict[str, Any]) -> dict[str, Any]:
         reward_mode=task["reward_mode"],
         capture_snapshots=False,
         manifest=task["manifest"],
-        policy_version=task.get("checkpoint") or name,
+        policy_version=getattr(policy, "version", name),
     )
     result = trace.to_dict()
     result["metadata"]["infrastructure_attempt"] = task["attempt"]
