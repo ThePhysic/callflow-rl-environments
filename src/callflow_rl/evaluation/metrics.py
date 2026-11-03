@@ -163,6 +163,15 @@ def evaluate_policy(
             "wrong_operation",
             "unaudited_database_change",
             "audit_chain_mismatch",
+            "consent_booking_mismatch",
+            "unauthorized_booking_target",
+            "consent_service_mismatch",
+            "write_customer_mismatch",
+            "policy_handoff_required",
+            "policy_service_forbidden",
+            "policy_location_forbidden",
+            "write_identity_changed",
+            "invalid_write_transition",
         }
         record = {
             **verdict,

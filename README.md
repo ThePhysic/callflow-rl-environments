@@ -110,6 +110,8 @@ It checks customer, service, location, acceptable slot, prior confirmation,
 revoked consent, capacity, transaction history, duplicates and truthful reports.
 Booking, atomic rescheduling and idempotent cancellation share the same state and
 audit contracts. Wrong or additional side effects invalidate completion.
+Every affected reservation must match the approved target, and the verifier
+checks published business policy independently of the scheduling backend.
 
 Rewards are +10 for verified completion, +3 for a justified refusal/handoff,
 -10 for other terminal outcomes, small step/tool costs, and optionally four

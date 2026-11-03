@@ -12,6 +12,10 @@ from callflow_rl.simulators.tools import slot_time_valid
 def verify(scenario: Any, state: dict[str, Any]) -> dict[str, Any]:
     goal = scenario.private_goal
     initial = scenario.initial_world.get("bookings", {})
+    # Business rules and immutable slot attributes come from the published
+    # episode specification, independently of a possibly faulty backend.
+    policy = scenario.initial_world.get("policy", {})
+    published_slots = {slot["id"]: slot for slot in scenario.initial_world.get("slots", [])}
     final = state["world"]["bookings"]
     audit = state["audit"]
     violations: list[str] = []
@@ -21,6 +25,62 @@ def verify(scenario: Any, state: dict[str, Any]) -> dict[str, Any]:
     for event in writes:
         consent = event.get("consent")
         after = event["after"]
+        before = event["before"]
+        operation = event["task"]
+        customer_id = event["customer_id"]
+        if after.get("customer_id") != customer_id or (
+            before is not None and before.get("customer_id") != customer_id
+        ):
+            violations.append("write_customer_mismatch")
+        if event.get("tool") != {
+            "book": "create_booking",
+            "reschedule": "reschedule_booking",
+            "cancel": "cancel_booking",
+        }.get(operation):
+            violations.append("invalid_write_transition")
+        if policy.get("handoff_required", False):
+            violations.append("policy_handoff_required")
+        if operation in {"book", "reschedule"}:
+            if after.get("service") not in policy.get("permitted_services", [after.get("service")]):
+                violations.append("policy_service_forbidden")
+            if after.get("location") not in policy.get(
+                "permitted_locations", [after.get("location")]
+            ):
+                violations.append("policy_location_forbidden")
+            destination = published_slots.get(after.get("slot_id"))
+            if not destination or (
+                after.get("service") != destination.get("service")
+                or after.get("location") != destination.get("location")
+            ):
+                violations.append("booking_slot_inconsistent")
+        if operation == "book":
+            if (
+                before is not None
+                or after.get("id") in initial
+                or (after.get("status") != "active" or after.get("version") != 0)
+            ):
+                violations.append("invalid_write_transition")
+        elif operation in {"reschedule", "cancel"}:
+            if after.get("id") != goal.get("booking_id"):
+                violations.append("unauthorized_booking_target")
+            if before is None or before.get("id") != after.get("id"):
+                violations.append("write_identity_changed")
+            if before is None or (
+                before.get("status") != "active"
+                or type(before.get("version")) is not int
+                or after.get("version") != before["version"] + 1
+                or after.get("status") != ("cancelled" if operation == "cancel" else "active")
+            ):
+                violations.append("invalid_write_transition")
+            if (
+                operation == "cancel"
+                and before is not None
+                and any(
+                    before.get(field) != after.get(field)
+                    for field in ("slot_id", "service", "location")
+                )
+            ):
+                violations.append("invalid_write_transition")
         if not consent or consent not in confirmations:
             violations.append("consent_absent")
         else:
@@ -32,6 +92,16 @@ def verify(scenario: Any, state: dict[str, Any]) -> dict[str, Any]:
                 violations.append("consent_mismatch")
             if event["task"] != "cancel" and consent["slot_id"] != after["slot_id"]:
                 violations.append("consent_slot_mismatch")
+            if operation in {"reschedule", "cancel"} and (
+                consent.get("booking_id") != after.get("id")
+                or before is None
+                or consent.get("booking_id") != before.get("id")
+            ):
+                violations.append("consent_booking_mismatch")
+            if operation == "book" and consent.get("booking_id") is not None:
+                violations.append("consent_booking_mismatch")
+            if consent.get("service") != after.get("service"):
+                violations.append("consent_service_mismatch")
             # A later correction before this write revokes old approvals.
             if any(
                 e["kind"] == "user_event"

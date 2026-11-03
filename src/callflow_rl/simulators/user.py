@@ -38,11 +38,20 @@ class UserSimulator:
         self.say(f"{prefix}, {field} is {truth[field]}.")
 
     def offer(self, slot_id: str) -> None:
+        truth = self.state["user_truth"]
+        if truth.get("task", "book") == "cancel":
+            # A cancellation request has no new appointment to accept. Treat an
+            # irrelevant offer as a clarification of intent, not as a refusal
+            # of the cancellation itself, and require renewed authorization.
+            self.state["offered_slot"] = None
+            self.state["offer_accepted"] = False
+            self.state["consent"] = None
+            self.say("My request is to cancel my existing reservation. I do not want a new slot.")
+            return
         slot = next((s for s in self.state["slots"] if s["id"] == slot_id), None)
         if slot is None:
             self.say("Please check availability before offering that slot.")
             return
-        truth = self.state["user_truth"]
         config = self.state["user_config"]
         acceptable = list(truth.get("window", []))
         if config.get("accept_alternatives", False):

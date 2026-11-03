@@ -45,6 +45,13 @@ chosen. No archetype or named behavior class crosses partitions. Shared operatio
 types (book/reschedule/cancel) are intentional: this measures behavioral transfer
 within one domain, not transfer to an unrelated business domain.
 
+In environment `0.1.1`, offering a new slot during cancellation produces an
+intent reminder and revokes prior consent; it does not mean the cancellation
+itself was declined. Truth-model checks detect task-incompatible accepted offers
+and accepted slots inconsistent with current customer preferences. An accepted
+slot remains valid conversation memory after a successful commit removes it
+from later availability responses.
+
 Train covers required-fact clarification, flexible alternatives, no capacity,
 declines, early interruptions, latency, conflicts, precommit and postcommit
 timeouts, atomic rescheduling, cancellation and explicit handoff policy. Dev

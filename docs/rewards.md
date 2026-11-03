@@ -6,6 +6,13 @@ agent's text, `reported`, and any agent-added success flag cannot establish task
 completion. The transition engine writes the audit; policy actions cannot submit
 audit events, edit goals, inject faults or call evaluator/debug endpoints.
 
+Verifier `1.1.0` also checks every cancellation/rescheduling row against the
+reservation ID actually approved and authorized by the private task. Row identity,
+ownership, service and valid operation/version transitions must agree. Published
+service/location/handoff policy is read from the initial scenario and checked
+independently of backend enforcement. Backend-regression tests supply internally
+consistent but unauthorized audited writes to ensure these checks stand alone.
+
 ## Success and side effects
 
 A completed booking requires exactly one new active reservation for the target

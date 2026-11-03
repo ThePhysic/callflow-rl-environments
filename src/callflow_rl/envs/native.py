@@ -133,16 +133,49 @@ class CallFlowEnv:
 
     def _check_user_consistency(self) -> None:
         s = self.state
-        valid = all(s["user_truth"].get(k) == v for k, v in s["facts"].items())
+        truth = s["user_truth"]
+        task = truth.get("task", "book")
+        valid = all(truth.get(k) == v for k, v in s["facts"].items())
+        if task == "cancel":
+            valid = valid and not s["offer_accepted"] and s["offered_slot"] is None
+        if s["offer_accepted"]:
+            # Independently check the task and actual slot against the user's
+            # current truth model; do not trust the simulator's flag. A later
+            # availability refresh may omit an accepted slot after it is booked.
+            slot = next((x for x in s["world"]["slots"] if x["id"] == s["offered_slot"]), None)
+            acceptable = list(truth.get("window", []))
+            if s["user_config"].get("accept_alternatives", False):
+                acceptable += s["user_config"].get("alternative_slots", [])
+            valid = (
+                valid
+                and task in {"book", "reschedule"}
+                and slot is not None
+                and slot["service"] == truth.get("service")
+                and slot["location"] == truth.get("location")
+                and slot["id"] in acceptable
+                and not s["user_config"].get("decline_all", False)
+            )
         c = s["consent"]
         if c:
             valid = (
                 valid
                 and c["customer_id"] == s["session_customer_id"]
-                and c["task"] == s["user_truth"].get("task")
-                and c["service"] == s["user_truth"].get("service")
+                and c["task"] == task
+                and c["service"] == truth.get("service")
                 and c["revision"] == s["user_revision"]
             )
+            if task == "cancel":
+                valid = (
+                    valid and c["slot_id"] is None and c["booking_id"] == truth.get("booking_id")
+                )
+            else:
+                valid = (
+                    valid
+                    and s["offer_accepted"]
+                    and c["slot_id"] == s["offered_slot"]
+                    and c["booking_id"]
+                    == (truth.get("booking_id") if task == "reschedule" else None)
+                )
         s["audit"].append(
             {
                 "kind": "simulator_check",
