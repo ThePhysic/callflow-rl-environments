@@ -1,8 +1,18 @@
-# Independent adversarial review
+# Internal adversarial review history
 
-Reviewer: **gpt-6-astra**, reasoning effort **medium**. Review covers the core
-project brief, implementation, regression tests, measured experiments and claims.
-Private GitHub publication waits on an explicit clean verdict.
+The shipped implementation is environment **0.1.2** / verifier **1.2.0**, with
+headless Python/Gymnasium APIs, CLI demos and saved replay/evaluation evidence.
+The latest implementation review is summarized in [the follow-up audit](postrelease-audit.md);
+the rounds below preserve the earlier **0.1.1** release chronology. GitHub
+availability is controlled by the repository's current access settings. Earlier
+private-publication gates below applied to those historical release candidates.
+
+These were AI-assisted **internal** reviews using **gpt-6-astra**, reasoning
+effort **medium**, separately from the implementation agents. "Independent"
+describes that separation within the project workflow, not third-party external
+certification or a human domain-expert audit. The strongest evidence is the
+reproduced counterexamples, regression tests and linked measurements. Review
+covered the project brief, implementation, tests, experiments and public claims.
 
 ## Round 1 — changes required
 
@@ -18,7 +28,7 @@ The reviewer independently reran all 180 tests and identified three material gap
 The reviewer found no additional material issue in PPO clipping/GAE, observation
 boundaries, replay implementation or the disclosed negative learning conclusions.
 Implementation and regression-test corrections are committed at `62a1aaf` in
-release `0.1.1` with verifier `1.1.0`; independent rereview is still required.
+release `0.1.1` with verifier `1.1.0`; rereview was required at that point.
 Historical training and evaluation evidence remains versioned and preserved;
 corrected simulator observations may change checkpoint trajectories.
 
@@ -30,7 +40,7 @@ negatives and an authorized intermediate reschedule outside the final slot set.
 The user correction rejects new-slot offers during cancellation, clears approval,
 and adds task/preference consistency checks. Thirteen new dialogue tests include
 postcommit availability refreshes. Nine evaluation tests ensure new violations
-are counted as unsafe side effects. The complete suite passes 227 tests.
+are counted as unsafe side effects. The complete suite then passed 227 tests.
 
 Follow-up checks expanded the same authorization guarantees: offer-driven consent
 revocations are explicit audit events, and confirmation order is verified. They
@@ -38,7 +48,7 @@ also demonstrated that changing a confirmed slot's timestamps could evade the
 original ID-based goal check. Slot definitions, customer records and published
 policy are now independently anchored to the scenario, with equivalent timestamp
 representations and legitimate availability/version changes covered positively.
-The expanded suite passes **262 tests**, with type and lint checks also passing.
+The expanded suite then passed **262 tests**, with type and lint checks also passing.
 
 ## Round 2 — changes required
 
@@ -55,13 +65,13 @@ the original three findings were addressed. Two additional P1 gaps remained:
   reconstructed write, with positive shared-capacity and intermediate-move cases.
 
 The interrupted checkpoint refreshes for intermediate candidates were never
-published. Implementation fixes now reconstruct capacity after every write and
-require full-row reporting after the final mutation. Twelve additional regressions
+published. The fixes reconstructed capacity after every write and required
+full-row reporting after the final mutation. Twelve additional regressions
 cover both native report ordering and transient capacity, with positive retry,
 reconciliation and shared-capacity cases. Public report flags depend only on
 observed operation results; private database truth remains in the verifier.
 
-Final review outcome will be recorded here after independent rereview.
+The subsequent rereview outcome is recorded in Round 3 below.
 
 ## Round 3 — overall clean: no remaining complaints
 
@@ -86,7 +96,9 @@ reproduced every saved state hash, return, outcome and resource count for the
 200-episode random test suite; checked all 28 summaries against their reports;
 and verified source/checkpoint provenance and preserved historical evidence.
 Quality, packaging, replay and parallel-rollout evidence were reviewed. The
-reviewer approved the candidate for private GitHub publication.
+reviewer approved the candidate for private GitHub publication under the access
+settings requested for that release. This is a historical approval, not a claim
+about current repository visibility.
 
 The original clean verdict was followed only by the review-record commit
 `f3c4b8e`. The subsequent follow-up audit and implementation changes are recorded
@@ -101,6 +113,8 @@ recorded in [the follow-up audit](postrelease-audit.md); they do not retroactive
 claim those cases were covered by the original passing tests.
 
 Fresh Astra medium approved candidate `0e691c4`, source `4fd3e16`, with no remaining
-material complaints established. The follow-up record contains its independently
-verified 372-test and refreshed-evidence scope. Only these review records changed
-after that approval; implementation and evaluation data remain unchanged.
+material complaints established, then approved the review-record commit
+`298546759cf4fe5ce26e0af68904ee3b81a5ba8b`. The follow-up record contains its
+372-test and refreshed-evidence scope. The documentation polish that followed
+does not change implementation, training weights or evaluation data, and is not
+an additional implementation-certification claim.
